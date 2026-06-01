@@ -36,13 +36,10 @@ export const createProductService = ({
     return productRepository.findAll();
   },
   deleteProduct(productId: string) {
-    const product = productRepository.findById(productId);
+    const product = findProductOrThrow(productId, productRepository);
 
-    if (!product)
-      throw new AppError(404, 'PRODUCT_NOT_FOUND', '존재하지 않는 상품입니다.');
-
-    cartItemRepository.deleteByProductId(productId);
-    productRepository.deleteById(productId);
+    cartItemRepository.deleteByProductId(product.productId);
+    productRepository.deleteById(product.productId);
   },
 });
 
@@ -50,3 +47,16 @@ export const productService = createProductService({
   productRepository,
   cartItemRepository,
 });
+
+const findProductOrThrow = (
+  productId: string,
+  productRepository: ProductRepository,
+) => {
+  const product = productRepository.findById(productId);
+
+  if (!product) {
+    throw new AppError(404, 'PRODUCT_NOT_FOUND', '존재하지 않는 상품입니다.');
+  }
+
+  return product;
+};
