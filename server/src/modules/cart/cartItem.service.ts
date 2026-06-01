@@ -11,10 +11,8 @@ import { ModelError } from '../../errors/ModelError.js';
 import type { AddCartItemRequest } from './cartItem.request.js';
 
 export const createCartItemService = ({
-  productRepository,
   cartItemRepository,
 }: {
-  productRepository: ProductRepository;
   cartItemRepository: CartItemRepository;
 }) => ({
   addCartItem(params: AddCartItemRequest) {
@@ -77,6 +75,9 @@ export const createCartItemService = ({
 
     cartItemRepository.deleteById(cartItem.cartItemId);
   },
+  deleteCartItemByProductId(productId: string) {
+    cartItemRepository.deleteByProductId(productId);
+  },
 
   changePurchaseQuantity(cartItemId: string, quantity: number) {
     const cartItem = findCartItemOrThrow(cartItemId, cartItemRepository);
@@ -101,7 +102,6 @@ export const createCartItemService = ({
 });
 
 export const cartItemService = createCartItemService({
-  productRepository,
   cartItemRepository,
 });
 

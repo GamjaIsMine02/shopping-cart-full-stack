@@ -8,13 +8,18 @@ import { cartItemRepository } from '../cart/cartItem.repository.js';
 import { productRepository } from './product.repository.js';
 import { Product } from './product.model.js';
 import type { ProductRequest } from './product.request.js';
+import { cartItemService } from '../cart/cartItem.service.js';
+
+type CartItemServicePort = {
+  deleteCartItemByProductId(productId: string): void;
+};
 
 export const createProductService = ({
   productRepository,
-  cartItemRepository,
+  cartItemServicePort,
 }: {
   productRepository: ProductRepository;
-  cartItemRepository: CartItemRepository;
+  cartItemServicePort: CartItemServicePort;
 }) => ({
   addProduct(params: ProductRequest) {
     try {
@@ -38,14 +43,17 @@ export const createProductService = ({
   deleteProduct(productId: string) {
     const product = findProductOrThrow(productId, productRepository);
 
-    cartItemRepository.deleteByProductId(product.productId);
     productRepository.deleteById(product.productId);
+    cartItemServicePort.deleteCartItemByProductId(product.productId);
   },
 });
 
 export const productService = createProductService({
   productRepository,
-  cartItemRepository,
+  // cartItemService에게 받은 메서드를 주입
+  cartItemServicePort: {
+    deleteCartItemByProductId: cartItemService.deleteCartItemByProductId,
+  },
 });
 
 const findProductOrThrow = (
