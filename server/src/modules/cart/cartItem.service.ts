@@ -69,22 +69,16 @@ export const createCartItemService = ({
   },
 
   getCartItemById(cartItemId: string) {
-    validateCartItemId(cartItemId);
-
     return findCartItemOrThrow(cartItemId, cartItemRepository);
   },
 
   deleteCartItem(cartItemId: string) {
-    validateCartItemId(cartItemId);
-
     const cartItem = findCartItemOrThrow(cartItemId, cartItemRepository);
 
     cartItemRepository.deleteById(cartItem.cartItemId);
   },
 
   changePurchaseQuantity(cartItemId: string, quantity: number) {
-    validateCartItemId(cartItemId);
-
     const cartItem = findCartItemOrThrow(cartItemId, cartItemRepository);
     const product = findProductOrThrow(cartItem.productId, productRepository);
 
@@ -110,16 +104,6 @@ export const cartItemService = createCartItemService({
   productRepository,
   cartItemRepository,
 });
-
-const validateCartItemId = (cartItemId: string) => {
-  if (typeof cartItemId !== 'string' || cartItemId.trim() === '') {
-    throw new AppError(
-      400,
-      'INVALID_CART_ITEM_ID',
-      '유효하지 않은 장바구니 상품 id입니다.',
-    );
-  }
-};
 
 const validateRemainingQuantity = (
   product: Product,
