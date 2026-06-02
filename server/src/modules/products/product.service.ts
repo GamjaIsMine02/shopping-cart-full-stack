@@ -1,10 +1,6 @@
 import { AppError } from '../../errors/AppError.js';
 import { ModelError } from '../../errors/ModelError.js';
-import type {
-  CartItemRepository,
-  ProductRepository,
-} from '../../interfaces/repository.interface.js';
-import { cartItemRepository } from '../cart/cartItem.repository.js';
+import type { ProductRepository } from '../../interfaces/repository.interface.js';
 import { productRepository } from './product.repository.js';
 import { Product } from './product.model.js';
 import type { ProductRequest } from './product.request.js';
