@@ -10,9 +10,20 @@ import { cartItemRepository } from './cartItem.repository.js';
 import { ModelError } from '../../errors/ModelError.js';
 import type { AddCartItemRequest } from './cartItem.request.js';
 
+type CartItemResponse = {
+  cartItemId: string;
+  productId: string;
+  productName: string;
+  productPrice: number;
+  imageUrl?: string;
+  purchaseQuantity: number;
+};
+
 export const createCartItemService = ({
+  productRepository,
   cartItemRepository,
 }: {
+  productRepository: ProductRepository;
   cartItemRepository: CartItemRepository;
 }) => ({
   addCartItem(params: AddCartItemRequest) {
@@ -63,7 +74,9 @@ export const createCartItemService = ({
   },
 
   getCartItems() {
-    return cartItemRepository.findAll();
+    return cartItemRepository
+      .findAll()
+      .map((cartItem) => createCartItemResponse(cartItem, productRepository));
   },
 
   getCartItemById(cartItemId: string) {
@@ -102,6 +115,7 @@ export const createCartItemService = ({
 });
 
 export const cartItemService = createCartItemService({
+  productRepository,
   cartItemRepository,
 });
 
@@ -145,4 +159,20 @@ const findProductOrThrow = (
   }
 
   return product;
+};
+
+const createCartItemResponse = (
+  cartItem: CartItem,
+  productRepository: ProductRepository,
+): CartItemResponse => {
+  const product = findProductOrThrow(cartItem.productId, productRepository);
+
+  return {
+    cartItemId: cartItem.cartItemId,
+    productId: cartItem.productId,
+    productName: product.productName,
+    productPrice: product.productPrice,
+    imageUrl: product.imageUrl,
+    purchaseQuantity: cartItem.purchaseQuantity,
+  };
 };
