@@ -8,7 +8,7 @@ import type {
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // 1. 장바구니 상품 목록 조회
-export const getCartItems = async (): Promise<CartItemResponse[]> => {
+export const getCartItemsApi = async (): Promise<CartItemResponse[]> => {
   const response = await fetch(`${API_BASE_URL}/cart/items`);
 
   if (!response.ok) {
@@ -19,7 +19,7 @@ export const getCartItems = async (): Promise<CartItemResponse[]> => {
 };
 
 // 2. 장바구니 상품 삭제
-export const deleteCartItem = async (
+export const deleteCartItemApi = async (
   deletingCartItemId: string,
 ): Promise<void> => {
   const response = await fetch(
@@ -33,7 +33,7 @@ export const deleteCartItem = async (
 };
 
 // 3. 장바구니 상품 수량 변경
-export const patchCartItemQuantity = async (
+export const patchCartItemQuantityApi = async (
   cartItemId: string,
   request: UpdateCartItemQuantityRequest,
 ): Promise<UpdateCartItemQuantityResponse> => {
