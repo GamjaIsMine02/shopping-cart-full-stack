@@ -50,6 +50,7 @@ describe('장바구니 API', () => {
         productName: mockProduct.productName,
         productPrice: mockProduct.productPrice,
         imageUrl: mockProduct.imageUrl,
+        remainingQuantity: mockProduct.remainingQuantity,
         purchaseQuantity: mockCartItem.purchaseQuantity,
       },
     ]);

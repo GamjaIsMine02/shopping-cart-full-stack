@@ -16,6 +16,7 @@ type CartItemResponse = {
   productName: string;
   productPrice: number;
   imageUrl?: string;
+  remainingQuantity: number;
   purchaseQuantity: number;
 };
 
@@ -173,6 +174,7 @@ const createCartItemResponse = (
     productName: product.productName,
     productPrice: product.productPrice,
     imageUrl: product.imageUrl,
+    remainingQuantity: product.remainingQuantity,
     purchaseQuantity: cartItem.purchaseQuantity,
   };
 };

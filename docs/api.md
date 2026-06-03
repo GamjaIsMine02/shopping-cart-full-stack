@@ -195,6 +195,7 @@ GET /cart/items
     "productName": "콜라",
     "productPrice": 1300,
     "imageUrl": "src/assets/coke.png",
+    "remainingQuantity": 50,
     "purchaseQuantity": 2
   }
 ]
