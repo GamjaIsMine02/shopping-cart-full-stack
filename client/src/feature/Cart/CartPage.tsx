@@ -1,3 +1,6 @@
+import type { FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '../../common/components/Button';
 import { Header } from '../../common/components/Header';
 import { CartItemListSection } from './components/CartItemListSection';
 import { CartEmptyView } from './components/CartEmptyView';
@@ -6,7 +9,7 @@ import { CartProvider } from './components/CartProvider';
 import { CartSkeleton } from './components/CartSkeleton';
 import { CartSummary } from './components/CartSummary';
 import { useCartContext } from './context/CartContext';
-import { Button } from '../../common/components/Button';
+import { calculateCartOrderSummary } from './utils/calculateCartOrderSummary';
 
 export const CartPage = () => {
   return (
@@ -19,12 +22,18 @@ export const CartPage = () => {
 
 // 페이지 이동을 위한 Form 컴포넌트
 const CartOrderForm = () => {
-  const { selectedCartItemIds, cartFetchStatus } = useCartContext();
+  const navigate = useNavigate();
+  const { cartItems, selectedCartItemIds, cartFetchStatus } = useCartContext();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // 결제 확인 페이지로 이동 & 필요한 데이터 보내기
+    const orderSummary = calculateCartOrderSummary(
+      cartItems,
+      selectedCartItemIds,
+    );
+
+    navigate('/order-confirm', { state: orderSummary });
   };
 
   const isOrderDisabled =
