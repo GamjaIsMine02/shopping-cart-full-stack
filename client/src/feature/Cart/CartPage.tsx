@@ -10,7 +10,12 @@ export const CartPage = () => {
   return (
     <div>
       <Header title="SHOP" />
-      <CartItemListSection values={cart.cartItems} />
+      <CartItemListSection
+        values={cart.cartItems}
+        selectedCartItemIds={cart.selectedCartItemIds}
+        onClickAllSelect={cart.toggleAllCartItems}
+        onClickSelect={cart.toggleCartItem}
+      />
       <CartSummary
         values={cart.cartItems}
         selectedIds={cart.selectedCartItemIds}
