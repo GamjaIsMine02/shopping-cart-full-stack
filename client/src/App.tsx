@@ -1,5 +1,11 @@
+import { CartPage } from './feature/Cart/CartPage';
+
 function App() {
-  return <></>;
+  return (
+    <>
+      <CartPage />
+    </>
+  );
 }
 
 export default App;
