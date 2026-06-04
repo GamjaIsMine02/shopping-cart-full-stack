@@ -8,13 +8,8 @@ import type { CartItemResponse } from '../../../api/cart/cartApi.types';
 
 export type CartFetchStatus = 'idle' | 'loading' | 'success' | 'error';
 
-// export type UseCartItemsReturn
-
-export const useCart = () => {
+export const useCartItems = () => {
   const [cartItems, setCartItems] = useState<CartItemResponse[]>([]);
-  const [selectedCartItemIds, setSelectedCartItemIds] = useState<
-    CartItemResponse['cartItemId'][]
-  >([]);
 
   const [cartFetchStatus, setCartFetchStatus] =
     useState<CartFetchStatus>('idle');
@@ -27,7 +22,7 @@ export const useCart = () => {
     null,
   );
 
-  // 상품 조회
+  // 상품 조회, 재시도
   const loadCartItems = async () => {
     try {
       setCartFetchStatus('loading');
@@ -40,11 +35,6 @@ export const useCart = () => {
       setCartFetchError(error);
       window.alert(error);
     }
-  };
-
-  // 상품 조회 재시도
-  const retryFetchCartItems = async () => {
-    await loadCartItems();
   };
 
   // 상품 삭제
@@ -68,9 +58,21 @@ export const useCart = () => {
   ) => {
     try {
       setUpdatingCartItemId(cartItemId);
-      await patchCartItemQuantityApi(cartItemId, {
+      const updatedCartItem = await patchCartItemQuantityApi(cartItemId, {
         purchaseQuantity: quantity,
       });
+
+      // 수량 상태 업데이트
+      setCartItems((previousItems) =>
+        previousItems.map((item) => {
+          if (item.cartItemId !== cartItemId) return item;
+
+          return {
+            ...item,
+            purchaseQuantity: updatedCartItem.purchaseQuantity,
+          };
+        }),
+      );
     } catch (error) {
       setCartFetchError(error);
       window.alert(error);
@@ -79,29 +81,15 @@ export const useCart = () => {
     }
   };
 
-  // 상품 하나 선택
-  const toggleCartItem = (cartItemId: string) => {
-    setSelectedCartItemIds((previousIds) => {
-      const isIncluded = previousIds.includes(cartItemId);
+  return {
+    cartItems,
+    cartFetchStatus,
+    cartFetchError,
+    deletingCartItemId,
+    updatingCartItemId,
 
-      if (isIncluded) return previousIds.filter((id) => id !== cartItemId);
-
-      return [...previousIds, cartItemId];
-    });
-  };
-
-  // 상품 모두 선택
-  const toggleAllCartItems = () => {
-    const allCartItemIds = cartItems.map((cartItem) => cartItem.cartItemId);
-    const isAllSelected = allCartItemIds.every((cartItemId) =>
-      selectedCartItemIds.includes(cartItemId),
-    );
-
-    if (isAllSelected) {
-      setSelectedCartItemIds([]);
-      return;
-    }
-
-    setSelectedCartItemIds(allCartItemIds);
+    loadCartItems,
+    deleteCartItem,
+    changeCartItemQuantity,
   };
 };
