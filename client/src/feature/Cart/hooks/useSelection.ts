@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { CartItemResponse } from '../../../api/cart/cartApi.types';
 import {
   getStoredSelectedCartItemIds,
@@ -16,7 +16,7 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
     saveSelectedCartItemIds(selectedCartItemIds);
   }, [selectedCartItemIds]);
 
-  const initializeSelection = (cartItems: CartItemResponse[]) => {
+  const initializeSelection = useCallback((cartItems: CartItemResponse[]) => {
     const storedIds = getStoredSelectedCartItemIds();
     const cartItemIds = cartItems.map((item) => item.cartItemId);
     const cartItemIdSet = new Set(cartItemIds);
@@ -29,7 +29,7 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
     setSelectedCartItemIds(() =>
       storedIds.filter((id) => cartItemIdSet.has(id)),
     );
-  };
+  }, []);
 
   const isAllSelected =
     cartItems.length > 0 &&
@@ -38,12 +38,12 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
     );
 
   // 최초 상품 모두 선택
-  const selectAllCartItems = (cartItems: CartItemResponse[]) => {
+  const selectAllCartItems = useCallback((cartItems: CartItemResponse[]) => {
     setSelectedCartItemIds(cartItems.map((item) => item.cartItemId));
-  };
+  }, []);
 
   // 상품 하나 선택
-  const toggleCartItem = (cartItemId: string) => {
+  const toggleCartItem = useCallback((cartItemId: string) => {
     setSelectedCartItemIds((previousIds) => {
       const isIncluded = previousIds.includes(cartItemId);
 
@@ -51,10 +51,10 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
 
       return [...previousIds, cartItemId];
     });
-  };
+  }, []);
 
   // 상품 모두 선택
-  const toggleAllCartItems = () => {
+  const toggleAllCartItems = useCallback(() => {
     const allCartItemIds = cartItems.map((cartItem) => cartItem.cartItemId);
     const isAllSelected = allCartItemIds.every((cartItemId) =>
       selectedCartItemIds.includes(cartItemId),
@@ -66,7 +66,7 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
     }
 
     setSelectedCartItemIds(allCartItemIds);
-  };
+  }, [cartItems, selectedCartItemIds]);
 
   return {
     selectedCartItemIds,

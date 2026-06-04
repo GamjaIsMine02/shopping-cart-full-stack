@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
   deleteCartItemApi,
   getCartItemsApi,
@@ -23,7 +23,7 @@ export const useCartItems = () => {
   );
 
   // 상품 조회, 재시도
-  const loadCartItems = async () => {
+  const loadCartItems = useCallback(async () => {
     try {
       setCartFetchStatus('loading');
       const items = await getCartItemsApi();
@@ -34,29 +34,29 @@ export const useCartItems = () => {
       return items;
     } catch (error) {
       setCartFetchStatus('error');
-      setCartFetchError(error);
+      setCartFetchError(createError(error));
       // window.alert(error);
 
       return null;
     }
-  };
+  }, []);
 
   // 상품 삭제
-  const deleteCartItem = async (deletingCartItemId: string) => {
+  const deleteCartItem = useCallback(async (deletingCartItemId: string) => {
     try {
       setDeletingCartItemId(deletingCartItemId);
       await deleteCartItemApi(deletingCartItemId);
       await loadCartItems();
     } catch (error) {
-      setCartFetchError(error);
+      setCartFetchError(createError(error));
       // window.alert(error);
     } finally {
       setDeletingCartItemId(null);
     }
-  };
+  }, [loadCartItems]);
 
   // 상품 수량 변경
-  const changeCartItemQuantity = async (
+  const changeCartItemQuantity = useCallback(async (
     cartItemId: string,
     quantity: number,
   ) => {
@@ -78,12 +78,12 @@ export const useCartItems = () => {
         }),
       );
     } catch (error) {
-      setCartFetchError(error);
+      setCartFetchError(createError(error));
       // window.alert(error);
     } finally {
       setUpdatingCartItemId(null);
     }
-  };
+  }, []);
 
   return {
     cartItems,
@@ -96,4 +96,10 @@ export const useCartItems = () => {
     deleteCartItem,
     changeCartItemQuantity,
   };
+};
+
+const createError = (error: unknown) => {
+  if (error instanceof Error) return error;
+
+  return new Error('알 수 없는 오류가 발생했습니다.');
 };
