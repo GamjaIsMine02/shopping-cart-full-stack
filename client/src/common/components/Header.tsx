@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react';
+
 type HeaderProps = {
   title?: string;
-  left?: React.ReactNode;
+  left?: ReactNode;
 };
 
 export const Header = ({ title, left }: HeaderProps) => {
