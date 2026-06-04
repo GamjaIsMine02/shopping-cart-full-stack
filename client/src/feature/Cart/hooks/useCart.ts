@@ -12,7 +12,7 @@ export const useCart = () => {
 
       if (cartItems === null) return;
 
-      selectionState.selectAllCartItems(cartItems);
+      selectionState.initializeSelection(cartItems);
     };
 
     initializeCart();

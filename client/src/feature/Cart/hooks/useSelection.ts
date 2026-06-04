@@ -1,12 +1,35 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CartItemResponse } from '../../../api/cart/cartApi.types';
+import {
+  getStoredSelectedCartItemIds,
+  saveSelectedCartItemIds,
+} from '../utils/cartSelectionStorage';
 
-// export type UseCartItemsReturn
+type CartItemId = CartItemResponse['cartItemId'];
 
 export const useSelection = (cartItems: CartItemResponse[]) => {
-  const [selectedCartItemIds, setSelectedCartItemIds] = useState<
-    CartItemResponse['cartItemId'][]
-  >([]);
+  const [selectedCartItemIds, setSelectedCartItemIds] = useState<CartItemId[]>(
+    () => getStoredSelectedCartItemIds() ?? [],
+  );
+
+  useEffect(() => {
+    saveSelectedCartItemIds(selectedCartItemIds);
+  }, [selectedCartItemIds]);
+
+  const initializeSelection = (cartItems: CartItemResponse[]) => {
+    const storedIds = getStoredSelectedCartItemIds();
+    const cartItemIds = cartItems.map((item) => item.cartItemId);
+    const cartItemIdSet = new Set(cartItemIds);
+
+    if (storedIds === null) {
+      setSelectedCartItemIds(cartItemIds);
+      return;
+    }
+
+    setSelectedCartItemIds(() =>
+      storedIds.filter((id) => cartItemIdSet.has(id)),
+    );
+  };
 
   const isAllSelected =
     cartItems.length > 0 &&
@@ -51,5 +74,6 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
     selectAllCartItems,
     toggleCartItem,
     toggleAllCartItems,
+    initializeSelection,
   };
 };
