@@ -5,7 +5,6 @@ import {
   patchCartItemQuantityApi,
 } from '../../../api/cart/cartApi';
 import type { CartItemResponse } from '../../../api/cart/cartApi.types';
-import type { ApiError } from '../../../api/errors/ApiError';
 
 export type CartFetchStatus = 'idle' | 'loading' | 'success' | 'error';
 
@@ -14,7 +13,7 @@ export const useCartItems = () => {
 
   const [cartFetchStatus, setCartFetchStatus] =
     useState<CartFetchStatus>('idle');
-  const [cartFetchError, setCartFetchError] = useState<ApiError | null>(null);
+  const [cartFetchError, setCartFetchError] = useState<Error | null>(null);
 
   const [deletingCartItemId, setDeletingCartItemId] = useState<string | null>(
     null,
@@ -27,6 +26,8 @@ export const useCartItems = () => {
   const loadCartItems = useCallback(async () => {
     try {
       setCartFetchStatus('loading');
+      setCartFetchError(null);
+
       const items = await getCartItemsApi();
       setCartItems(items);
 
@@ -35,7 +36,7 @@ export const useCartItems = () => {
       return items;
     } catch (error) {
       setCartFetchStatus('error');
-      setCartFetchError(createError(error));
+      setCartFetchError(error);
       // window.alert(error);
 
       return null;
@@ -47,11 +48,13 @@ export const useCartItems = () => {
     async (deletingCartItemId: string) => {
       try {
         setDeletingCartItemId(deletingCartItemId);
+        setCartFetchError(null);
+
         await deleteCartItemApi(deletingCartItemId);
         await loadCartItems();
       } catch (error) {
-        setCartFetchError(createError(error));
         // window.alert(error);
+        setCartFetchError(error);
       } finally {
         setDeletingCartItemId(null);
       }
@@ -64,6 +67,8 @@ export const useCartItems = () => {
     async (cartItemId: string, quantity: number) => {
       try {
         setUpdatingCartItemId(cartItemId);
+        setCartFetchError(null);
+
         const updatedCartItem = await patchCartItemQuantityApi(cartItemId, {
           purchaseQuantity: quantity,
         });
@@ -80,8 +85,8 @@ export const useCartItems = () => {
           }),
         );
       } catch (error) {
-        setCartFetchError(createError(error));
         // window.alert(error);
+        setCartFetchError(error);
       } finally {
         setUpdatingCartItemId(null);
       }

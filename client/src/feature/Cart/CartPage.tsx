@@ -23,7 +23,8 @@ export const CartPage = () => {
 // 페이지 이동을 위한 Form 컴포넌트
 const CartOrderForm = () => {
   const navigate = useNavigate();
-  const { cartItems, selectedCartItemIds, cartFetchStatus } = useCartContext();
+  const { cartItems, selectedCartItemIds, cartFetchStatus, cartFetchError } =
+    useCartContext();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -42,6 +43,7 @@ const CartOrderForm = () => {
   return (
     <form onSubmit={handleSubmit}>
       <CartContent />
+      {cartFetchError && <p role="alert">{cartFetchError.message}</p>}
       <Button type="submit" disabled={isOrderDisabled}>
         주문 확인
       </Button>
