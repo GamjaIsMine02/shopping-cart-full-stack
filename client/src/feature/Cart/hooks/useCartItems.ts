@@ -30,10 +30,14 @@ export const useCartItems = () => {
       setCartItems(items);
 
       setCartFetchStatus('success');
+
+      return items;
     } catch (error) {
       setCartFetchStatus('error');
       setCartFetchError(error);
       window.alert(error);
+
+      return null;
     }
   };
 

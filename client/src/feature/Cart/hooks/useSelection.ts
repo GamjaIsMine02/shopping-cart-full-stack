@@ -8,6 +8,11 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
     CartItemResponse['cartItemId'][]
   >([]);
 
+  // 최초 상품 모두 선택
+  const selectAllCartItems = (cartItems: CartItemResponse[]) => {
+    setSelectedCartItemIds(cartItems.map((item) => item.cartItemId));
+  };
+
   // 상품 하나 선택
   const toggleCartItem = (cartItemId: string) => {
     setSelectedCartItemIds((previousIds) => {
@@ -36,6 +41,7 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
 
   return {
     selectedCartItemIds,
+    selectAllCartItems,
     toggleCartItem,
     toggleAllCartItems,
   };
