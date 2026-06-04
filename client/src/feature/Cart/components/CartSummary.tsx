@@ -1,15 +1,12 @@
-import type { CartItemResponse } from '../../../api/cart/cartApi.types';
+import { useCartContext } from '../context/CartContext';
 import { CartSummaryLine } from './CartSummaryLine';
 
-type CartSummaryProps = {
-  values: CartItemResponse[];
-  selectedIds: string[];
-};
+export const CartSummary = () => {
+  const { cartItems, selectedCartItemIds } = useCartContext();
 
-export const CartSummary = ({ values, selectedIds }: CartSummaryProps) => {
   // 선택된 상품 가져오기
-  const selectedCartItems = values.filter((value) =>
-    selectedIds.includes(value.cartItemId),
+  const selectedCartItems = cartItems.filter((value) =>
+    selectedCartItemIds.includes(value.cartItemId),
   );
 
   // 주문 금액 계산

@@ -1,26 +1,16 @@
 import { Button } from '../../common/components/Button';
 import { Header } from '../../common/components/Header';
 import { CartItemListSection } from './components/CartItemListSection';
+import { CartProvider } from './components/CartProvider';
 import { CartSummary } from './components/CartSummary';
-import { useCart } from './hooks/useCart';
 
 export const CartPage = () => {
-  const cart = useCart();
-
   return (
-    <div>
+    <CartProvider>
       <Header title="SHOP" />
-      <CartItemListSection
-        values={cart.cartItems}
-        selectedCartItemIds={cart.selectedCartItemIds}
-        onClickAllSelect={cart.toggleAllCartItems}
-        onClickSelect={cart.toggleCartItem}
-      />
-      <CartSummary
-        values={cart.cartItems}
-        selectedIds={cart.selectedCartItemIds}
-      />
+      <CartItemListSection />
+      <CartSummary />
       {/* <Button /> */}
-    </div>
+    </CartProvider>
   );
 };

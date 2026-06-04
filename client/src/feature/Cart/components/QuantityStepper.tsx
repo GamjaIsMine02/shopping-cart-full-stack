@@ -1,9 +1,23 @@
-export const QuantityStepper = ({ quantity }: { quantity: number }) => {
+type QuantityStepperProps = {
+  quantity: number;
+  onDecrease: () => void;
+  onIncrease: () => void;
+};
+
+export const QuantityStepper = ({
+  quantity,
+  onDecrease,
+  onIncrease,
+}: QuantityStepperProps) => {
   return (
     <div>
-      <button>-</button>
-      {quantity}
-      <button>+</button>
+      <button type="button" onClick={onDecrease}>
+        -
+      </button>
+      <span>{quantity}</span>
+      <button type="button" onClick={onIncrease}>
+        +
+      </button>
     </div>
   );
 };

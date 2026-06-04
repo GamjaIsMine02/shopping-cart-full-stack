@@ -1,25 +1,29 @@
 import type { CartItemResponse } from '../../../api/cart/cartApi.types';
 import { QuantityStepper } from './QuantityStepper';
 
+type CartItemProps = {
+  value: CartItemResponse;
+  isSelected: boolean;
+  onToggle: () => void;
+  onDecrease: () => void;
+  onIncrease: () => void;
+};
+
 export const CartItem = ({
   value,
-  selectedCartItemIds,
-  onClickSelect,
-}: {
-  value: CartItemResponse;
-  selectedCartItemIds: string[];
-  onClickSelect: (cartItemId: string) => void;
-}) => {
-  const isSelected = selectedCartItemIds.includes(value.cartItemId);
-
+  isSelected,
+  onToggle,
+  onDecrease,
+  onIncrease,
+}: CartItemProps) => {
   return (
     <div>
-      <input
-        type="checkbox"
-        checked={isSelected}
-        onClick={() => onClickSelect(value.cartItemId)}
+      <input type="checkbox" checked={isSelected} onChange={onToggle} />
+      <QuantityStepper
+        quantity={value.purchaseQuantity}
+        onDecrease={onDecrease}
+        onIncrease={onIncrease}
       />
-      <QuantityStepper quantity={value.purchaseQuantity} />
       <div>imgUrl</div>
       <div>{value.productName}</div>
       <div>{value.productPrice}</div>
