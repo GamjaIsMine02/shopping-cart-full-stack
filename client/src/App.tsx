@@ -1,10 +1,14 @@
+import { Navigate, Route, Routes } from 'react-router-dom';
 import { CartPage } from './feature/Cart/CartPage';
+import { OrderConfirmPage } from './feature/OrderConfirm/OrderConfirmPage';
 
 function App() {
   return (
-    <>
-      <CartPage />
-    </>
+    <Routes>
+      <Route path="/" element={<Navigate to="/cart" replace />} />
+      <Route path="/cart" element={<CartPage />} />
+      <Route path="/order-confirm" element={<OrderConfirmPage />} />
+    </Routes>
   );
 }
 
