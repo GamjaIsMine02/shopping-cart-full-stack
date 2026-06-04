@@ -21,6 +21,11 @@ export const CartItem = ({
       <input type="checkbox" checked={isSelected} onChange={onToggle} />
       <QuantityStepper
         quantity={value.purchaseQuantity}
+        isDecreaseDisabled={value.purchaseQuantity <= 1}
+        isIncreaseDisabled={
+          value.purchaseQuantity >= value.remainingQuantity ||
+          value.purchaseQuantity >= 99
+        }
         onDecrease={onDecrease}
         onIncrease={onIncrease}
       />
