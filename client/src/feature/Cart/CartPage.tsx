@@ -41,7 +41,7 @@ const CartOrderForm = () => {
 };
 
 const CartContent = () => {
-  const { cartItems, cartFetchStatus, cartFetchError, retryLoadCartItems } =
+  const { cartItems, cartFetchStatus, cartFetchError, loadCartItems } =
     useCartContext();
 
   if (cartFetchStatus === 'idle' || cartFetchStatus === 'loading') {
@@ -49,9 +49,7 @@ const CartContent = () => {
   }
 
   if (cartFetchStatus === 'error') {
-    return (
-      <CartErrorView error={cartFetchError} onRetry={retryLoadCartItems} />
-    );
+    return <CartErrorView error={cartFetchError} onRetry={loadCartItems} />;
   }
 
   if (cartItems.length === 0) {

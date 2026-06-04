@@ -1,3 +1,4 @@
+import type { CartItemResponse } from '../../../api/cart/cartApi.types';
 import { useCartContext } from '../context/CartContext';
 import { CartItem } from './CartItem';
 
@@ -11,6 +12,16 @@ export const CartItemListSection = () => {
     toggleAllCartItems,
     toggleCartItem,
   } = useCartContext();
+
+  const handleDeleteCartItem = (cartItem: CartItemResponse) => {
+    const isConfirmed = window.confirm(
+      `'${cartItem.productName}' 상품을 장바구니에서 삭제하시겠습니까?`,
+    );
+
+    if (!isConfirmed) return;
+
+    deleteCartItem(cartItem.cartItemId);
+  };
 
   return (
     <div>
@@ -29,15 +40,7 @@ export const CartItemListSection = () => {
           value={cartItem}
           isSelected={selectedCartItemIds.includes(cartItem.cartItemId)}
           onToggle={() => toggleCartItem(cartItem.cartItemId)}
-          onDelete={() => {
-            const isConfirmed = window.confirm(
-              `'${cartItem.productName}' 상품을 장바구니에서 삭제하시겠습니까?`,
-            );
-
-            if (!isConfirmed) return;
-
-            deleteCartItem(cartItem.cartItemId);
-          }}
+          onDelete={() => handleDeleteCartItem(cartItem)}
           onIncrease={() =>
             changeCartItemQuantity(
               cartItem.cartItemId,
