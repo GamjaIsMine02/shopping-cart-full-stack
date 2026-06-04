@@ -5,6 +5,7 @@ export type CartItemResponse = {
   productPrice: number;
   imageUrl?: string;
   purchaseQuantity: number;
+  remainingQuantity: number;
 };
 
 export type UpdateCartItemQuantityRequest = {
