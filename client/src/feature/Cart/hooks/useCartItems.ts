@@ -35,7 +35,7 @@ export const useCartItems = () => {
     } catch (error) {
       setCartFetchStatus('error');
       setCartFetchError(error);
-      window.alert(error);
+      // window.alert(error);
 
       return null;
     }
@@ -49,7 +49,7 @@ export const useCartItems = () => {
       await loadCartItems();
     } catch (error) {
       setCartFetchError(error);
-      window.alert(error);
+      // window.alert(error);
     } finally {
       setDeletingCartItemId(null);
     }
@@ -79,7 +79,7 @@ export const useCartItems = () => {
       );
     } catch (error) {
       setCartFetchError(error);
-      window.alert(error);
+      // window.alert(error);
     } finally {
       setUpdatingCartItemId(null);
     }

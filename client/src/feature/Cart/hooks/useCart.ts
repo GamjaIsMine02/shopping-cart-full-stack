@@ -10,6 +10,8 @@ export const useCart = () => {
     const initializeCart = async () => {
       const cartItems = await cartItemsState.loadCartItems();
 
+      if (cartItems === null) return;
+
       selectionState.selectAllCartItems(cartItems);
     };
 
