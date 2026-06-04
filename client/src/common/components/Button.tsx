@@ -1,12 +1,14 @@
-type ButtonProps = {
-  children: string;
-  disabled: boolean;
-  onClick: () => void;
-};
+import type { ButtonHTMLAttributes, PropsWithChildren } from 'react';
 
-export const Button = ({ children, disabled, onClick }: ButtonProps) => {
+type ButtonProps = PropsWithChildren<ButtonHTMLAttributes<HTMLButtonElement>>;
+
+export const Button = ({
+  children,
+  type = 'button',
+  ...props
+}: ButtonProps) => {
   return (
-    <button onClick={() => onClick} disabled={disabled}>
+    <button type={type} {...props}>
       {children}
     </button>
   );
