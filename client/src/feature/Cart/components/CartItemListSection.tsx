@@ -7,6 +7,7 @@ export const CartItemListSection = () => {
     selectedCartItemIds,
     isAllSelected,
     changeCartItemQuantity,
+    deleteCartItem,
     toggleAllCartItems,
     toggleCartItem,
   } = useCartContext();
@@ -28,6 +29,15 @@ export const CartItemListSection = () => {
           value={cartItem}
           isSelected={selectedCartItemIds.includes(cartItem.cartItemId)}
           onToggle={() => toggleCartItem(cartItem.cartItemId)}
+          onDelete={() => {
+            const isConfirmed = window.confirm(
+              `'${cartItem.productName}' 상품을 장바구니에서 삭제하시겠습니까?`,
+            );
+
+            if (!isConfirmed) return;
+
+            deleteCartItem(cartItem.cartItemId);
+          }}
           onIncrease={() =>
             changeCartItemQuantity(
               cartItem.cartItemId,
