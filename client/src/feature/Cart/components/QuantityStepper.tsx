@@ -1,8 +1,8 @@
-export const QuantityStepper = () => {
+export const QuantityStepper = ({ quantity }: { quantity: number }) => {
   return (
     <div>
       <button>-</button>
-      <input value={1} type="text" />
+      {quantity}
       <button>+</button>
     </div>
   );

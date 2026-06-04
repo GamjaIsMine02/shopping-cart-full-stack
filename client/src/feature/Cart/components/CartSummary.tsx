@@ -19,7 +19,7 @@ export const CartSummary = ({ values, selectedIds }: CartSummaryProps) => {
   );
 
   // 배송비 계산
-  const deliveryPrice = orderPrice >= 100000 ? 0 : 3000;
+  const deliveryPrice = orderPrice >= 100000 || orderPrice <= 0 ? 0 : 3000;
 
   // 총 결제 금액 계산
   const totalPrice = orderPrice + deliveryPrice;
