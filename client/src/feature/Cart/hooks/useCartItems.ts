@@ -36,7 +36,7 @@ export const useCartItems = () => {
       return items;
     } catch (error) {
       setCartFetchStatus('error');
-      setCartFetchError(error);
+      setCartFetchError(createError(error));
 
       return null;
     }
@@ -52,7 +52,7 @@ export const useCartItems = () => {
         await deleteCartItemApi(deletingCartItemId);
         await loadCartItems();
       } catch (error) {
-        setCartFetchError(error);
+        setCartFetchError(createError(error));
       } finally {
         setDeletingCartItemId(null);
       }
@@ -83,7 +83,7 @@ export const useCartItems = () => {
           }),
         );
       } catch (error) {
-        setCartFetchError(error);
+        setCartFetchError(createError(error));
       } finally {
         setUpdatingCartItemId(null);
       }
@@ -102,4 +102,10 @@ export const useCartItems = () => {
     deleteCartItem,
     changeCartItemQuantity,
   };
+};
+
+const createError = (error: unknown) => {
+  if (error instanceof Error) return error;
+
+  return new Error('요청 처리 중 오류가 발생했습니다.');
 };
