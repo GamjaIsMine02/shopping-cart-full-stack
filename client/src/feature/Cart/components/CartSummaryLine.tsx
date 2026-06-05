@@ -1,3 +1,5 @@
+import styled from 'styled-components';
+
 export const CartSummaryLine = ({
   title,
   value,
@@ -6,9 +8,31 @@ export const CartSummaryLine = ({
   value: number;
 }) => {
   return (
-    <div>
-      <div>{title}</div>
-      <div>{value}</div>
-    </div>
+    <LineContainer>
+      <Title>{title}</Title>
+      <Value>{value.toLocaleString()}원</Value>
+    </LineContainer>
   );
 };
+
+const LineContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+`;
+
+const Title = styled.div`
+  color: #000000;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+`;
+
+const Value = styled.div`
+  color: #000000;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: right;
+`;
