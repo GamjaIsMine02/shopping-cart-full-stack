@@ -56,6 +56,8 @@ const shimmer = keyframes`
 const SkeletonSection = styled.section`
   display: flex;
   flex-direction: column;
+
+  padding: 24px 20px 16px;
 `;
 
 const HeaderBlock = styled.div`

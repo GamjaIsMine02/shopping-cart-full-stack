@@ -72,6 +72,8 @@ export const CartItemListSection = () => {
 const Section = styled.section`
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
 `;
 
 const SectionHeader = styled.div`
@@ -124,4 +126,7 @@ const SelectAllText = styled.span`
 const List = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 `;

@@ -57,7 +57,7 @@ export const Container = styled.div`
 
   width: 100%;
   max-width: 376px;
-  height: min(700px, 100vh);
+  height: min(820px, 100vh);
   overflow: hidden;
 
   gap: 16px;

@@ -48,18 +48,16 @@ const CartOrderForm = () => {
 
   return (
     <OrderForm onSubmit={handleSubmit}>
-      <CartScrollArea>
+      <CartContentArea>
         <CartContent />
-      </CartScrollArea>
+      </CartContentArea>
 
-      <ButtonArea>
-        {cartFetchError && (
-          <ErrorMessage role="alert">{cartFetchError.message}</ErrorMessage>
-        )}
-        <Button type="submit" disabled={isOrderDisabled}>
-          주문 확인
-        </Button>
-      </ButtonArea>
+      {cartFetchError && (
+        <ErrorMessage role="alert">{cartFetchError.message}</ErrorMessage>
+      )}
+      <Button type="submit" disabled={isOrderDisabled}>
+        주문 확인
+      </Button>
     </OrderForm>
   );
 };
@@ -81,10 +79,10 @@ const CartContent = () => {
   }
 
   return (
-    <>
+    <CartSuccessContent>
       <CartItemListSection />
       <CartSummary />
-    </>
+    </CartSuccessContent>
   );
 };
 
@@ -96,18 +94,20 @@ const OrderForm = styled.form`
   min-height: 0;
 `;
 
-const CartScrollArea = styled.div`
+const CartContentArea = styled.div`
+  display: flex;
+  flex-direction: column;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-
-  padding: 24px 20px 16px;
 `;
 
-const ButtonArea = styled.div`
-  flex-shrink: 0;
+const CartSuccessContent = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
 
-  background-color: #ffffff;
+  padding: 24px 20px 16px;
 `;
 
 const ErrorMessage = styled.p`
