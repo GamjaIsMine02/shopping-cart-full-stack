@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { CartItemResponse } from '../../../api/cart/cartApi.types';
 import {
   getStoredSelectedCartItemIds,
@@ -9,12 +9,21 @@ type CartItemId = CartItemResponse['cartItemId'];
 
 export const useSelection = (cartItems: CartItemResponse[]) => {
   const [selectedCartItemIds, setSelectedCartItemIds] = useState<CartItemId[]>(
-    () => getStoredSelectedCartItemIds() ?? [],
+    [],
   );
+  const [isSelectionInitialized, setIsSelectionInitialized] = useState(false);
+
+  const validSelectedCartItemIds = useMemo(() => {
+    const cartItemIdSet = new Set(cartItems.map((item) => item.cartItemId));
+
+    return selectedCartItemIds.filter((id) => cartItemIdSet.has(id));
+  }, [cartItems, selectedCartItemIds]);
 
   useEffect(() => {
-    saveSelectedCartItemIds(selectedCartItemIds);
-  }, [selectedCartItemIds]);
+    if (!isSelectionInitialized) return;
+
+    saveSelectedCartItemIds(validSelectedCartItemIds);
+  }, [isSelectionInitialized, validSelectedCartItemIds]);
 
   const initializeSelection = useCallback((cartItems: CartItemResponse[]) => {
     const storedIds = getStoredSelectedCartItemIds();
@@ -23,18 +32,20 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
 
     if (storedIds === null) {
       setSelectedCartItemIds(cartItemIds);
+      setIsSelectionInitialized(true);
       return;
     }
 
     setSelectedCartItemIds(() =>
       storedIds.filter((id) => cartItemIdSet.has(id)),
     );
+    setIsSelectionInitialized(true);
   }, []);
 
   const isAllSelected =
     cartItems.length > 0 &&
     cartItems.every((cartItem) =>
-      selectedCartItemIds.includes(cartItem.cartItemId),
+      validSelectedCartItemIds.includes(cartItem.cartItemId),
     );
 
   // 최초 상품 모두 선택
@@ -57,7 +68,7 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
   const toggleAllCartItems = useCallback(() => {
     const allCartItemIds = cartItems.map((cartItem) => cartItem.cartItemId);
     const isAllSelected = allCartItemIds.every((cartItemId) =>
-      selectedCartItemIds.includes(cartItemId),
+      validSelectedCartItemIds.includes(cartItemId),
     );
 
     if (isAllSelected) {
@@ -66,10 +77,10 @@ export const useSelection = (cartItems: CartItemResponse[]) => {
     }
 
     setSelectedCartItemIds(allCartItemIds);
-  }, [cartItems, selectedCartItemIds]);
+  }, [cartItems, validSelectedCartItemIds]);
 
   return {
-    selectedCartItemIds,
+    selectedCartItemIds: validSelectedCartItemIds,
     isAllSelected,
     selectAllCartItems,
     toggleCartItem,
