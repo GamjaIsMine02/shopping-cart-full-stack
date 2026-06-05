@@ -11,6 +11,7 @@ import { useCartContext } from './context/CartContext';
 import { calculateCartOrderSummary } from './utils/calculateCartOrderSummary';
 import { CartProvider } from './context/CartProvider';
 import { Container, Wrapper } from '../../common/styles/global';
+import styled from 'styled-components';
 
 export const CartPage = () => {
   return (
@@ -46,13 +47,18 @@ const CartOrderForm = () => {
     cartFetchStatus !== 'success' || selectedCartItemIds.length === 0;
 
   return (
-    <form onSubmit={handleSubmit}>
-      <CartContent />
-      {cartFetchError && <p role="alert">{cartFetchError.message}</p>}
-      <Button type="submit" disabled={isOrderDisabled}>
-        주문 확인
-      </Button>
-    </form>
+    <OrderForm onSubmit={handleSubmit}>
+      <CartScrollArea>
+        <CartContent />
+      </CartScrollArea>
+
+      <ButtonArea>
+        {cartFetchError && <p role="alert">{cartFetchError.message}</p>}
+        <Button type="submit" disabled={isOrderDisabled}>
+          주문 확인
+        </Button>
+      </ButtonArea>
+    </OrderForm>
   );
 };
 
@@ -79,3 +85,25 @@ const CartContent = () => {
     </>
   );
 };
+
+const OrderForm = styled.form`
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+  min-height: 0;
+`;
+
+const CartScrollArea = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+
+  padding: 24px 20px 16px;
+`;
+
+const ButtonArea = styled.div`
+  flex-shrink: 0;
+
+  background-color: #ffffff;
+`;

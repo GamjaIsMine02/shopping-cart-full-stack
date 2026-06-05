@@ -60,7 +60,6 @@ export const Container = styled.div`
   height: min(700px, 100vh);
   overflow: hidden;
 
-  padding: 40px 28px;
   gap: 16px;
 
   background-color: #ffffff;
