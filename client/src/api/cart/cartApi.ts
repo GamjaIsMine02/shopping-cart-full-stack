@@ -6,12 +6,19 @@ import type {
 } from './cartApi.types';
 
 // 장바구니 페이지의 API
-const API_BASE_URL =
-  import.meta.env?.VITE_API_BASE_URL ?? globalThis.location?.origin ?? '';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const createApiUrl = (path: string) => {
+  if (!API_BASE_URL) {
+    throw new NetworkError();
+  }
+
+  return `${API_BASE_URL}${path}`;
+};
 
 // 1. 장바구니 상품 목록 조회
 export const getCartItemsApi = async (): Promise<CartItemResponse[]> => {
-  const response = await request(`${API_BASE_URL}/cart/items`);
+  const response = await request(createApiUrl('/cart/items'));
 
   return response.json();
 };
@@ -20,7 +27,7 @@ export const getCartItemsApi = async (): Promise<CartItemResponse[]> => {
 export const deleteCartItemApi = async (
   deletingCartItemId: string,
 ): Promise<void> => {
-  await request(`${API_BASE_URL}/cart/items/${deletingCartItemId}`, {
+  await request(createApiUrl(`/cart/items/${deletingCartItemId}`), {
     method: 'DELETE',
   });
 };
@@ -30,7 +37,7 @@ export const patchCartItemQuantityApi = async (
   cartItemId: string,
   requestBody: UpdateCartItemQuantityRequest,
 ): Promise<UpdateCartItemQuantityResponse> => {
-  const response = await request(`${API_BASE_URL}/cart/items/${cartItemId}`, {
+  const response = await request(createApiUrl(`/cart/items/${cartItemId}`), {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
