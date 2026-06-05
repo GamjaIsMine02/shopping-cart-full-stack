@@ -6,7 +6,8 @@ import type {
 } from './cartApi.types';
 
 // 장바구니 페이지의 API
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL =
+  import.meta.env?.VITE_API_BASE_URL ?? globalThis.location?.origin ?? '';
 
 // 1. 장바구니 상품 목록 조회
 export const getCartItemsApi = async (): Promise<CartItemResponse[]> => {
