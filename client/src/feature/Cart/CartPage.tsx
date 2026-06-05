@@ -53,7 +53,9 @@ const CartOrderForm = () => {
       </CartScrollArea>
 
       <ButtonArea>
-        {cartFetchError && <p role="alert">{cartFetchError.message}</p>}
+        {cartFetchError && (
+          <ErrorMessage role="alert">{cartFetchError.message}</ErrorMessage>
+        )}
         <Button type="submit" disabled={isOrderDisabled}>
           주문 확인
         </Button>
@@ -106,4 +108,12 @@ const ButtonArea = styled.div`
   flex-shrink: 0;
 
   background-color: #ffffff;
+`;
+
+const ErrorMessage = styled.p`
+  margin: 0 0 8px;
+
+  color: #c62828;
+  font-size: 13px;
+  font-weight: 600;
 `;
