@@ -5,18 +5,23 @@ import { Header } from '../../common/components/Header';
 import { CartItemListSection } from './components/CartItemListSection';
 import { CartEmptyView } from './components/CartEmptyView';
 import { CartErrorView } from './components/CartErrorView';
-import { CartProvider } from './components/CartProvider';
 import { CartSkeleton } from './components/CartSkeleton';
 import { CartSummary } from './components/CartSummary';
 import { useCartContext } from './context/CartContext';
 import { calculateCartOrderSummary } from './utils/calculateCartOrderSummary';
+import { CartProvider } from './context/CartProvider';
+import { Container, Wrapper } from '../../common/styles/global';
 
 export const CartPage = () => {
   return (
-    <CartProvider>
-      <Header title="SHOP" />
-      <CartOrderForm />
-    </CartProvider>
+    <Wrapper>
+      <Container>
+        <CartProvider>
+          <Header title="SHOP" />
+          <CartOrderForm />
+        </CartProvider>
+      </Container>
+    </Wrapper>
   );
 };
 
