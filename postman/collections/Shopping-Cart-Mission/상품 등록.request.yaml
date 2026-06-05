@@ -1,0 +1,14 @@
+$kind: http-request
+name: 상품 등록
+url: ""
+method: POST
+body:
+  type: json
+  content: |-
+    {
+         "productName": "상품이름B",
+            "productPrice": 1500,
+            "remainingQuantity": 99,
+            "imageUrl": "/images/shoes-b.png"
+    }
+order: 2759913860607308
