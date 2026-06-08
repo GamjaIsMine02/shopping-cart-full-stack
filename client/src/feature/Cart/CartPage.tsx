@@ -29,7 +29,7 @@ export const CartPage = () => {
 // 페이지 이동을 위한 Form 컴포넌트
 const CartOrderForm = () => {
   const navigate = useNavigate();
-  const { cartItems, selectedCartItemIds, cartFetchStatus, cartFetchError } =
+  const { cartItems, selectedCartItemIds, cartFetchStatus, cartActionError } =
     useCartContext();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -52,8 +52,8 @@ const CartOrderForm = () => {
         <CartContent />
       </CartContentArea>
 
-      {cartFetchError && (
-        <ErrorMessage role="alert">{cartFetchError.message}</ErrorMessage>
+      {cartActionError && (
+        <ErrorMessage role="alert">{cartActionError.message}</ErrorMessage>
       )}
       <Button type="submit" disabled={isOrderDisabled}>
         주문 확인
@@ -99,6 +99,7 @@ const CartContentArea = styled.div`
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  padding: 24px 20px 16px;
 `;
 
 const CartSuccessContent = styled.div`
@@ -106,8 +107,6 @@ const CartSuccessContent = styled.div`
   flex: 1;
   flex-direction: column;
   min-height: 0;
-
-  padding: 24px 20px 16px;
 `;
 
 const ErrorMessage = styled.p`
@@ -116,4 +115,5 @@ const ErrorMessage = styled.p`
   color: #c62828;
   font-size: 13px;
   font-weight: 600;
+  text-align: center;
 `;

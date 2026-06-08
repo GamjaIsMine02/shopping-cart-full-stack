@@ -13,11 +13,9 @@ export const useCartItems = () => {
 
   const [cartFetchStatus, setCartFetchStatus] =
     useState<CartFetchStatus>('idle');
-  const [cartFetchError, setCartFetchError] = useState<Error | null>(null);
 
-  const [deletingCartItemId, setDeletingCartItemId] = useState<string | null>(
-    null,
-  );
+  const [cartFetchError, setCartFetchError] = useState<Error | null>(null);
+  const [cartActionError, setCartActionError] = useState<Error | null>(null);
 
   // 상품 조회, 재시도
   const loadCartItems = useCallback(async () => {
@@ -43,15 +41,12 @@ export const useCartItems = () => {
   const deleteCartItem = useCallback(
     async (deletingCartItemId: string) => {
       try {
-        setDeletingCartItemId(deletingCartItemId);
-        setCartFetchError(null);
+        setCartActionError(null);
 
         await deleteCartItemApi(deletingCartItemId);
         await loadCartItems();
       } catch (error) {
-        setCartFetchError(createError(error));
-      } finally {
-        setDeletingCartItemId(null);
+        setCartActionError(createError(error));
       }
     },
     [loadCartItems],
@@ -64,7 +59,7 @@ export const useCartItems = () => {
       const previousCartItems = cartItems;
 
       try {
-        setCartFetchError(null);
+        setCartActionError(null);
 
         // 인자로 받은 수량으로 먼저 상태 업데이트 - 낙관적 업데이트
         setCartItems((previousItems) =>
@@ -84,17 +79,17 @@ export const useCartItems = () => {
       } catch (error) {
         // 에러 시 이전 수량 상태로 롤백
         setCartItems(previousCartItems);
-        setCartFetchError(createError(error));
+        setCartActionError(createError(error));
       }
     },
-    [],
+    [cartItems],
   );
 
   return {
     cartItems,
     cartFetchStatus,
     cartFetchError,
-    deletingCartItemId,
+    cartActionError,
 
     loadCartItems,
     deleteCartItem,
