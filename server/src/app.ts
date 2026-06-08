@@ -8,7 +8,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: ['https://gamjaismine02.github.io'],
+    origin: ['https://gamjaismine02.github.io', 'http://localhost:5173'],
     credentials: true,
   }),
 );
