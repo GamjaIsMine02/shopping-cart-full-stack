@@ -18,9 +18,6 @@ export const useCartItems = () => {
   const [deletingCartItemId, setDeletingCartItemId] = useState<string | null>(
     null,
   );
-  const [updatingCartItemId, setUpdatingCartItemId] = useState<string | null>(
-    null,
-  );
 
   // 상품 조회, 재시도
   const loadCartItems = useCallback(async () => {
@@ -63,29 +60,31 @@ export const useCartItems = () => {
   // 상품 수량 변경
   const changeCartItemQuantity = useCallback(
     async (cartItemId: string, quantity: number) => {
+      // 낙관적 업데이트를 위해 기존 수량을 저장
+      const previousCartItems = cartItems;
+
       try {
-        setUpdatingCartItemId(cartItemId);
         setCartFetchError(null);
 
-        const updatedCartItem = await patchCartItemQuantityApi(cartItemId, {
-          purchaseQuantity: quantity,
-        });
-
-        // 수량 상태 업데이트
+        // 인자로 받은 수량으로 먼저 상태 업데이트 - 낙관적 업데이트
         setCartItems((previousItems) =>
           previousItems.map((item) => {
             if (item.cartItemId !== cartItemId) return item;
 
             return {
               ...item,
-              purchaseQuantity: updatedCartItem.purchaseQuantity,
+              purchaseQuantity: quantity,
             };
           }),
         );
+
+        await patchCartItemQuantityApi(cartItemId, {
+          purchaseQuantity: quantity,
+        });
       } catch (error) {
+        // 에러 시 이전 수량 상태로 롤백
+        setCartItems(previousCartItems);
         setCartFetchError(createError(error));
-      } finally {
-        setUpdatingCartItemId(null);
       }
     },
     [],
@@ -96,7 +95,6 @@ export const useCartItems = () => {
     cartFetchStatus,
     cartFetchError,
     deletingCartItemId,
-    updatingCartItemId,
 
     loadCartItems,
     deleteCartItem,
