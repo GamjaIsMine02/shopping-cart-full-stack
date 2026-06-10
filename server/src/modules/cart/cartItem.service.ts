@@ -10,6 +10,16 @@ import { cartItemRepository } from './cartItem.repository.js';
 import { ModelError } from '../../errors/ModelError.js';
 import type { AddCartItemRequest } from './cartItem.request.js';
 
+type CartItemResponse = {
+  cartItemId: string;
+  productId: string;
+  productName: string;
+  productPrice: number;
+  imageUrl?: string;
+  remainingQuantity: number;
+  purchaseQuantity: number;
+};
+
 export const createCartItemService = ({
   productRepository,
   cartItemRepository,
@@ -65,26 +75,25 @@ export const createCartItemService = ({
   },
 
   getCartItems() {
-    return cartItemRepository.findAll();
+    return cartItemRepository
+      .findAll()
+      .map((cartItem) => createCartItemResponse(cartItem, productRepository));
   },
 
   getCartItemById(cartItemId: string) {
-    validateCartItemId(cartItemId);
-
     return findCartItemOrThrow(cartItemId, cartItemRepository);
   },
 
   deleteCartItem(cartItemId: string) {
-    validateCartItemId(cartItemId);
-
     const cartItem = findCartItemOrThrow(cartItemId, cartItemRepository);
 
     cartItemRepository.deleteById(cartItem.cartItemId);
   },
+  deleteCartItemByProductId(productId: string) {
+    cartItemRepository.deleteByProductId(productId);
+  },
 
   changePurchaseQuantity(cartItemId: string, quantity: number) {
-    validateCartItemId(cartItemId);
-
     const cartItem = findCartItemOrThrow(cartItemId, cartItemRepository);
     const product = findProductOrThrow(cartItem.productId, productRepository);
 
@@ -110,16 +119,6 @@ export const cartItemService = createCartItemService({
   productRepository,
   cartItemRepository,
 });
-
-const validateCartItemId = (cartItemId: string) => {
-  if (typeof cartItemId !== 'string' || cartItemId.trim() === '') {
-    throw new AppError(
-      400,
-      'INVALID_CART_ITEM_ID',
-      '유효하지 않은 장바구니 상품 id입니다.',
-    );
-  }
-};
 
 const validateRemainingQuantity = (
   product: Product,
@@ -161,4 +160,21 @@ const findProductOrThrow = (
   }
 
   return product;
+};
+
+const createCartItemResponse = (
+  cartItem: CartItem,
+  productRepository: ProductRepository,
+): CartItemResponse => {
+  const product = findProductOrThrow(cartItem.productId, productRepository);
+
+  return {
+    cartItemId: cartItem.cartItemId,
+    productId: cartItem.productId,
+    productName: product.productName,
+    productPrice: product.productPrice,
+    imageUrl: product.imageUrl,
+    remainingQuantity: product.remainingQuantity,
+    purchaseQuantity: cartItem.purchaseQuantity,
+  };
 };

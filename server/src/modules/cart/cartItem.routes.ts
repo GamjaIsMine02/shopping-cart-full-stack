@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { cartItemService } from './cartItem.service.js';
 import {
   parseAddCartItemRequest,
+  parseCartItemIdParam,
   parseChangePurchaseQuantityRequest,
 } from './cartItem.request.js';
 
@@ -32,7 +33,8 @@ cartItemRouter.post('/cart/items', (req, res, next) => {
 
 cartItemRouter.delete('/cart/items/:cartItemId', (req, res, next) => {
   try {
-    cartItemService.deleteCartItem(req.params.cartItemId);
+    const cartItemId = parseCartItemIdParam(req.params.cartItemId);
+    cartItemService.deleteCartItem(cartItemId);
     res.status(204).send();
   } catch (error) {
     next(error);
@@ -41,12 +43,13 @@ cartItemRouter.delete('/cart/items/:cartItemId', (req, res, next) => {
 
 cartItemRouter.patch('/cart/items/:cartItemId', (req, res, next) => {
   try {
+    const cartItemId = parseCartItemIdParam(req.params.cartItemId);
     const { purchaseQuantity } = parseChangePurchaseQuantityRequest(
       req.body ?? {},
     );
 
     const cartItem = cartItemService.changePurchaseQuantity(
-      req.params.cartItemId,
+      cartItemId,
       purchaseQuantity,
     );
 

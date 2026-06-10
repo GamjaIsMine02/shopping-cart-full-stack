@@ -9,6 +9,12 @@ export type ChangePurchaseQuantityRequest = {
   purchaseQuantity: number;
 };
 
+export const parseCartItemIdParam = (cartItemId: unknown): string => {
+  validateCartItemIdField(cartItemId);
+
+  return cartItemId;
+};
+
 export const parseAddCartItemRequest = (
   body: unknown,
 ): AddCartItemRequest => {
@@ -54,6 +60,13 @@ function validatePurchaseQuantityField(
   if (typeof purchaseQuantity !== 'number') throwInvalidPurchaseQuantity();
 }
 
+function validateCartItemIdField(
+  cartItemId: unknown,
+): asserts cartItemId is string {
+  if (typeof cartItemId !== 'string' || cartItemId.trim() === '')
+    throwInvalidCartItemId();
+}
+
 const throwInvalidProductId = (): never => {
   throw new AppError(
     400,
@@ -67,5 +80,13 @@ const throwInvalidPurchaseQuantity = (): never => {
     400,
     'INVALID_PURCHASE_QUANTITY',
     '유효하지 않은 구매 수량입니다.',
+  );
+};
+
+const throwInvalidCartItemId = (): never => {
+  throw new AppError(
+    400,
+    'INVALID_CART_ITEM_ID',
+    '유효하지 않은 장바구니 상품 id입니다.',
   );
 };

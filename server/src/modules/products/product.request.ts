@@ -7,6 +7,18 @@ export type ProductRequest = {
   imageUrl?: string;
 };
 
+export const parseProductIdParam = (productId: unknown): string => {
+  if (typeof productId !== 'string' || productId.trim() === '') {
+    throw new AppError(
+      400,
+      'INVALID_PRODUCT_ID',
+      '유효하지 않은 상품 id입니다.',
+    );
+  }
+
+  return productId;
+};
+
 export const parseProductRequest = (body: unknown): ProductRequest => {
   if (!isRecord(body)) throwInvalidProductName();
 

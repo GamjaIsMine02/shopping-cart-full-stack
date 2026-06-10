@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { productService } from './product.service.js';
-import { parseProductRequest } from './product.request.js';
+import { parseProductIdParam, parseProductRequest } from './product.request.js';
 
 export const productRouter = Router();
 
@@ -24,7 +24,9 @@ productRouter.post('/products', (req, res, next) => {
 
 productRouter.delete('/products/:productId', (req, res, next) => {
   try {
-    productService.deleteProduct(req.params.productId);
+    const productId = parseProductIdParam(req.params.productId);
+
+    productService.deleteProduct(productId);
     res.status(204).send();
   } catch (error) {
     next(error);

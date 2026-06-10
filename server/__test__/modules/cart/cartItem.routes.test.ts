@@ -34,6 +34,27 @@ describe('장바구니 API', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual([]);
   });
+  it('장바구니 목록 요청 시 상품 정보를 함께 응답한다', async () => {
+    const cartItemResponse = await request(app).post('/cart/items').send({
+      productId: mockCartItem.productId,
+      purchaseQuantity: mockCartItem.purchaseQuantity,
+    });
+
+    const response = await request(app).get('/cart/items');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual([
+      {
+        cartItemId: cartItemResponse.body.cartItemId,
+        productId: mockProduct.productId,
+        productName: mockProduct.productName,
+        productPrice: mockProduct.productPrice,
+        imageUrl: mockProduct.imageUrl,
+        remainingQuantity: mockProduct.remainingQuantity,
+        purchaseQuantity: mockCartItem.purchaseQuantity,
+      },
+    ]);
+  });
   it('장바구니에 상품 추가', async () => {
     const response = await request(app).post('/cart/items').send({
       productId: mockCartItem.productId,

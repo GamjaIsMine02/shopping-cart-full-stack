@@ -1,20 +1,21 @@
 import { AppError } from '../../errors/AppError.js';
 import { ModelError } from '../../errors/ModelError.js';
-import type {
-  CartItemRepository,
-  ProductRepository,
-} from '../../interfaces/repository.interface.js';
-import { cartItemRepository } from '../cart/cartItem.repository.js';
+import type { ProductRepository } from '../../interfaces/repository.interface.js';
 import { productRepository } from './product.repository.js';
 import { Product } from './product.model.js';
 import type { ProductRequest } from './product.request.js';
+import { cartItemService } from '../cart/cartItem.service.js';
+
+type CartItemServicePort = {
+  deleteCartItemByProductId(productId: string): void;
+};
 
 export const createProductService = ({
   productRepository,
-  cartItemRepository,
+  cartItemServicePort,
 }: {
   productRepository: ProductRepository;
-  cartItemRepository: CartItemRepository;
+  cartItemServicePort: CartItemServicePort;
 }) => ({
   addProduct(params: ProductRequest) {
     try {
@@ -36,17 +37,30 @@ export const createProductService = ({
     return productRepository.findAll();
   },
   deleteProduct(productId: string) {
-    const product = productRepository.findById(productId);
+    const product = findProductOrThrow(productId, productRepository);
 
-    if (!product)
-      throw new AppError(404, 'PRODUCT_NOT_FOUND', '존재하지 않는 상품입니다.');
-
-    cartItemRepository.deleteByProductId(productId);
-    productRepository.deleteById(productId);
+    productRepository.deleteById(product.productId);
+    cartItemServicePort.deleteCartItemByProductId(product.productId);
   },
 });
 
 export const productService = createProductService({
   productRepository,
-  cartItemRepository,
+  // cartItemService에게 받은 메서드를 주입
+  cartItemServicePort: {
+    deleteCartItemByProductId: cartItemService.deleteCartItemByProductId,
+  },
 });
+
+const findProductOrThrow = (
+  productId: string,
+  productRepository: ProductRepository,
+) => {
+  const product = productRepository.findById(productId);
+
+  if (!product) {
+    throw new AppError(404, 'PRODUCT_NOT_FOUND', '존재하지 않는 상품입니다.');
+  }
+
+  return product;
+};

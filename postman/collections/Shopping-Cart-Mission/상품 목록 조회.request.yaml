@@ -1,0 +1,5 @@
+$kind: http-request
+name: 상품 목록 조회
+url: https://shopping-cart-full-stack-production-92a9.up.railway.app/products
+method: GET
+order: 1780640259585
