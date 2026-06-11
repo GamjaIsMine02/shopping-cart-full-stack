@@ -4,15 +4,43 @@ import {
   getCartItemsApi,
   patchCartItemQuantityApi,
 } from '../../../api/cart/cartApi';
-import type { CartItemResponse } from '../../../api/cart/cartApi.types';
+import type {
+  CartItemResponse,
+  UpdateCartItemQuantityRequest,
+} from '../../../api/cart/cartApi.types';
 import { useQuery } from '../../../shared/hooks/useQuery';
+import { useMutation } from '../../../shared/hooks/useMutation';
 
 export type CartFetchStatus = 'idle' | 'loading' | 'success' | 'error';
+
+type ChangeCartItemQuantityVariables = {
+  cartItemId: string;
+  quantity: number;
+};
 
 export const useCartItems = () => {
   const { data, isLoading, error, refetch, setQueryData } = useQuery<
     CartItemResponse[]
   >('cart-items', getCartItemsApi);
+
+  const {
+    mutate: deleteCartItemMutate,
+    isLoading: isDeleting,
+    error: deleteError,
+  } = useMutation<string, void>(deleteCartItemApi);
+
+  const {
+    mutate: changeCartItemQuantityMutate,
+    isLoading: isChangingQuantity,
+    error: changeQuantityError,
+  } = useMutation<
+    ChangeCartItemQuantityVariables,
+    UpdateCartItemQuantityRequest
+  >(({ cartItemId, quantity }) =>
+    patchCartItemQuantityApi(cartItemId, {
+      purchaseQuantity: quantity,
+    }),
+  );
 
   const [cartActionError, setCartActionError] = useState<Error | null>(null);
 
@@ -26,54 +54,57 @@ export const useCartItems = () => {
     : 'success';
 
   // 상품 조회, 재시도
-  const loadCartItems = useCallback(async () => {
-    return refetch();
-  }, [refetch]);
+  const loadCartItems = async () => refetch();
 
   // 상품 삭제
-  const deleteCartItem = useCallback(
-    async (deletingCartItemId: string) => {
-      try {
-        setCartActionError(null);
+  const deleteCartItem = async (deletingCartItemId: string) => {
+    setCartActionError(null);
 
-        await deleteCartItemApi(deletingCartItemId);
+    await deleteCartItemMutate(deletingCartItemId, {
+      onSuccess: async () => {
         await refetch();
-      } catch (error) {
-        setCartActionError(createError(error));
-      }
-    },
-    [refetch],
-  );
+      },
+
+      onError: () => {
+        setCartActionError(deleteError);
+      },
+    });
+  };
 
   // 상품 수량 변경
-  const changeCartItemQuantity = useCallback(
-    async (cartItemId: string, quantity: number) => {
-      const previousCartItems = data ?? [];
+  const changeCartItemQuantity = async (
+    cartItemId: string,
+    quantity: number,
+  ) => {
+    const previousCartItems = data ?? [];
 
-      try {
-        setCartActionError(null);
+    await changeCartItemQuantityMutate(
+      {
+        cartItemId,
+        quantity,
+      },
+      {
+        onMutate: () => {
+          setCartActionError(null);
+          setQueryData((previousItems) =>
+            previousItems.map((item) => {
+              if (item.cartItemId !== cartItemId) return item;
 
-        setQueryData((previousItems) =>
-          previousItems.map((item) => {
-            if (item.cartItemId !== cartItemId) return item;
+              return {
+                ...item,
+                purchaseQuantity: quantity,
+              };
+            }),
+          );
+        },
 
-            return {
-              ...item,
-              purchaseQuantity: quantity,
-            };
-          }),
-        );
-
-        await patchCartItemQuantityApi(cartItemId, {
-          purchaseQuantity: quantity,
-        });
-      } catch (error) {
-        setQueryData(() => previousCartItems);
-        setCartActionError(createError(error));
-      }
-    },
-    [cartItems],
-  );
+        onError: () => {
+          setQueryData(() => previousCartItems);
+          setCartActionError(changeQuantityError);
+        },
+      },
+    );
+  };
 
   return {
     cartItems,
@@ -85,10 +116,4 @@ export const useCartItems = () => {
     deleteCartItem,
     changeCartItemQuantity,
   };
-};
-
-const createError = (error: unknown) => {
-  if (error instanceof Error) return error;
-
-  return new Error('요청 처리 중 오류가 발생했습니다.');
 };
