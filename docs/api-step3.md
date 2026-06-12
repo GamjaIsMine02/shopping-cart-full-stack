@@ -365,3 +365,54 @@ GET /coupons
 ### 9. 쿠폰 선택할 때마다 BE에서 최종 할인 금액을 계산하기로 결정한 이유
 
 - 쿠폰이 추후에 추가되거나 정책이 변경되면 프론트에서와 백에서의 싱크가 맞지 않을 수 있다.
+
+---
+
+### couponDB 구조
+
+```ts
+type Coupon = {
+  couponId: string;
+  code: 'FIXED5000' | 'BOGO' | 'FREESHIPPING' | 'MIRACLESALE';
+  name: string;
+  discountType: ...
+  expiresAt: string;
+
+  minimumOrderPrice?: number;
+  discountPrice?: number;
+  discountRate?: number;
+
+  buyQuantity?: number;
+  freeQuantity?: number;
+
+  availableStartHour?: number;
+  availableEndHour?: number;
+};
+```
+
+### orderDB 구조
+
+```ts
+type OrderProduct = {
+  productId: string;
+  productName: string;
+  productPrice: number;
+  imgUrl: string;
+  quantity: number;
+};
+
+type PriceInfo = {
+  orderPrice: number;
+  discountPrice: number;
+  deliveryFee: number;
+  totalPrice: number;
+};
+
+type Order = {
+  orderId: string;
+  orderProducts: OrderProduct[];
+  isIsland: boolean;
+  couponIds: string[];
+  priceInfo: PriceInfo;
+};
+```
