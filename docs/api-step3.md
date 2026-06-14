@@ -50,7 +50,7 @@ http://localhost:3000
 ### 2-1. 주문 정보 조회
 
 ```http
-GET /order
+GET /order/:orderId
 ```
 
 #### Request
