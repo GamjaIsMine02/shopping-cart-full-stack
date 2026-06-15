@@ -1,62 +1,10 @@
 import {
-  BogoCoupon,
-  CouponContext,
-  FixedAmountCoupon,
-  FreeShippingCoupon,
-  MiracleSaleCoupon,
-} from '../../../src/modules/coupons/coupons.model.js';
-
-const createContext = ({
-  orderProducts = [
-    {
-      productId: 'product-1',
-      productName: '상품A',
-      productPrice: 100000,
-      quantity: 1,
-    },
-  ],
-  orderPrice = 100000,
-  deliveryFee = 3000,
-  isIsland = false,
-  now = new Date('2026-06-14T10:00:00'),
-}: Partial<CouponContext> = {}): CouponContext => ({
-  orderProducts,
-  orderPrice,
-  deliveryFee,
-  isIsland,
-  now,
-});
-
-const createFixedAmountCoupon = (expiresAt = new Date('2026-11-30')) =>
-  new FixedAmountCoupon({
-    couponId: 'coupon-5000',
-    expiresAt,
-    minimumOrderPrice: 100000,
-    discountPrice: 5000,
-  });
-
-const createBogoCoupon = (expiresAt = new Date('2026-06-30')) =>
-  new BogoCoupon({
-    couponId: 'coupon-bogo',
-    expiresAt,
-    minimumQuantity: 3,
-  });
-
-const createFreeShippingCoupon = (expiresAt = new Date('2026-08-31')) =>
-  new FreeShippingCoupon({
-    couponId: 'coupon-free-shipping',
-    expiresAt,
-    minimumOrderPrice: 50000,
-  });
-
-const createMiracleSaleCoupon = (expiresAt = new Date('2026-07-31')) =>
-  new MiracleSaleCoupon({
-    couponId: 'coupon-miracle-sale',
-    expiresAt,
-    discountRate: 0.3,
-    startHour: 4,
-    endHour: 7,
-  });
+  createFixedAmountCoupon,
+  createBogoCoupon,
+  createFreeShippingCoupon,
+  createMiracleSaleCoupon,
+  createContext,
+} from '../../helpers/createCoupons.js';
 
 describe('쿠폰 공통 정책', () => {
   test('만료일이 지난 쿠폰은 적용할 수 없다', () => {
@@ -278,7 +226,7 @@ describe('MIRACLESALE 쿠폰', () => {
     );
 
     expect(discount).toEqual({
-      productDiscountPrice: 30000,
+      productDiscountPrice: 90000,
       deliveryDiscountPrice: 0,
     });
   });
