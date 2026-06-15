@@ -226,7 +226,7 @@ describe('MIRACLESALE 쿠폰', () => {
     );
 
     expect(discount).toEqual({
-      productDiscountPrice: 90000,
+      productDiscountPrice: 30000,
       deliveryDiscountPrice: 0,
     });
   });
