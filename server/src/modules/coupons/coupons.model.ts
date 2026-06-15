@@ -115,7 +115,7 @@ export class FreeShippingCoupon implements CouponPolicy {
   calculateDiscount(context: CouponContext): CouponDiscount {
     return {
       productDiscountPrice: 0,
-      deliveryDiscountPrice: context.deliveryFee,
+      deliveryDiscountPrice: 0,
     };
   }
 }

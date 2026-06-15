@@ -1,10 +1,14 @@
-import { CouponContext } from '../../src/interfaces/couponPolicy.interface.js';
+import {
+  CouponContext,
+  OrderContext,
+} from '../../src/interfaces/couponPolicy.interface.js';
 import {
   BogoCoupon,
   FixedAmountCoupon,
   FreeShippingCoupon,
   MiracleSaleCoupon,
 } from '../../src/modules/coupons/coupons.model.js';
+import { priceCalculator } from '../../src/utils/priceCalculator.js';
 
 export const createFixedAmountCoupon = (expiresAt = new Date('2026-11-30')) =>
   new FixedAmountCoupon({
@@ -46,14 +50,16 @@ export const createContext = ({
       quantity: 3,
     },
   ],
-  orderPrice = 300000,
-  deliveryFee = 3000,
   isIsland = false,
   now = new Date('2026-06-14T06:00:00'),
-}: Partial<CouponContext> = {}): CouponContext => ({
+}: Partial<OrderContext> = {}): OrderContext => ({
   orderProducts,
-  orderPrice,
-  deliveryFee,
   isIsland,
   now,
 });
+
+export const createCouponContext = (
+  params: Partial<CouponContext> = {},
+): CouponContext => {
+  return priceCalculator.createCouponContext(createContext(params));
+};

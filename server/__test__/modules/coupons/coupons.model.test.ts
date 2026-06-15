@@ -3,7 +3,7 @@ import {
   createBogoCoupon,
   createFreeShippingCoupon,
   createMiracleSaleCoupon,
-  createContext,
+  createCouponContext,
 } from '../../helpers/createCoupons.js';
 
 describe('쿠폰 공통 정책', () => {
@@ -11,7 +11,7 @@ describe('쿠폰 공통 정책', () => {
     const coupon = createFixedAmountCoupon(new Date('2026-06-13'));
 
     const isApplicable = coupon.isApplicable(
-      createContext({ now: new Date('2026-06-14T00:00:00') }),
+      createCouponContext({ now: new Date('2026-06-14T00:00:00') }),
     );
 
     expect(isApplicable).toBe(false);
@@ -21,7 +21,7 @@ describe('쿠폰 공통 정책', () => {
     const coupon = createFixedAmountCoupon(new Date('2026-06-14T23:59:59'));
 
     const isApplicable = coupon.isApplicable(
-      createContext({ now: new Date('2026-06-14T23:59:59') }),
+      createCouponContext({ now: new Date('2026-06-14T23:59:59') }),
     );
 
     expect(isApplicable).toBe(true);
@@ -33,7 +33,7 @@ describe('FIXED5000 쿠폰', () => {
     const coupon = createFixedAmountCoupon();
 
     const discount = coupon.calculateDiscount(
-      createContext({ orderPrice: 100000 }),
+      createCouponContext({ orderPrice: 100000 }),
     );
 
     expect(discount).toEqual({
@@ -46,7 +46,7 @@ describe('FIXED5000 쿠폰', () => {
     const coupon = createFixedAmountCoupon();
 
     const isApplicable = coupon.isApplicable(
-      createContext({ orderPrice: 100000 }),
+      createCouponContext({ orderPrice: 100000 }),
     );
 
     expect(isApplicable).toBe(true);
@@ -56,7 +56,16 @@ describe('FIXED5000 쿠폰', () => {
     const coupon = createFixedAmountCoupon();
 
     const isApplicable = coupon.isApplicable(
-      createContext({ orderPrice: 99999 }),
+      createCouponContext({
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 99999,
+            quantity: 1,
+          },
+        ],
+      }),
     );
 
     expect(isApplicable).toBe(false);
@@ -66,7 +75,7 @@ describe('FIXED5000 쿠폰', () => {
 describe('BOGO 쿠폰', () => {
   test('동일 상품 3개 구매 시 단가가 가장 높은 상품 1개 가격을 할인한다', () => {
     const coupon = createBogoCoupon();
-    const context = createContext({
+    const context = createCouponContext({
       orderProducts: [
         {
           productId: 'product-1',
@@ -94,7 +103,7 @@ describe('BOGO 쿠폰', () => {
 
   test('동일 상품을 3개 이상 구매한 상품이 여러 개면 단가가 가장 높은 상품을 기준으로 할인한다', () => {
     const coupon = createBogoCoupon();
-    const context = createContext({
+    const context = createCouponContext({
       orderProducts: [
         {
           productId: 'product-1',
@@ -122,7 +131,7 @@ describe('BOGO 쿠폰', () => {
 
   test('동일 상품 수량이 3개 미만이면 적용할 수 없다', () => {
     const coupon = createBogoCoupon();
-    const context = createContext({
+    const context = createCouponContext({
       orderProducts: [
         {
           productId: 'product-1',
@@ -137,7 +146,6 @@ describe('BOGO 쿠폰', () => {
           quantity: 1,
         },
       ],
-      orderPrice: 50000,
     });
 
     const isApplicable = coupon.isApplicable(context);
@@ -151,15 +159,21 @@ describe('FREESHIPPING 쿠폰', () => {
     const coupon = createFreeShippingCoupon();
 
     const discount = coupon.calculateDiscount(
-      createContext({
-        orderPrice: 50000,
-        deliveryFee: 3000,
+      createCouponContext({
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 99999,
+            quantity: 1,
+          },
+        ],
       }),
     );
 
     expect(discount).toEqual({
       productDiscountPrice: 0,
-      deliveryDiscountPrice: 3000,
+      deliveryDiscountPrice: 0,
     });
   });
 
@@ -167,16 +181,22 @@ describe('FREESHIPPING 쿠폰', () => {
     const coupon = createFreeShippingCoupon();
 
     const discount = coupon.calculateDiscount(
-      createContext({
-        orderPrice: 50000,
-        deliveryFee: 6000,
+      createCouponContext({
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 50000,
+            quantity: 1,
+          },
+        ],
         isIsland: true,
       }),
     );
 
     expect(discount).toEqual({
       productDiscountPrice: 0,
-      deliveryDiscountPrice: 6000,
+      deliveryDiscountPrice: 0,
     });
   });
 
@@ -184,7 +204,7 @@ describe('FREESHIPPING 쿠폰', () => {
     const coupon = createFreeShippingCoupon();
 
     const discount = coupon.calculateDiscount(
-      createContext({
+      createCouponContext({
         orderPrice: 50000,
         deliveryFee: 3000,
       }),
@@ -197,7 +217,16 @@ describe('FREESHIPPING 쿠폰', () => {
     const coupon = createFreeShippingCoupon();
 
     const isApplicable = coupon.isApplicable(
-      createContext({ orderPrice: 50000 }),
+      createCouponContext({
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 50000,
+            quantity: 1,
+          },
+        ],
+      }),
     );
 
     expect(isApplicable).toBe(true);
@@ -207,7 +236,16 @@ describe('FREESHIPPING 쿠폰', () => {
     const coupon = createFreeShippingCoupon();
 
     const isApplicable = coupon.isApplicable(
-      createContext({ orderPrice: 49999 }),
+      createCouponContext({
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 49999,
+            quantity: 1,
+          },
+        ],
+      }),
     );
 
     expect(isApplicable).toBe(false);
@@ -219,8 +257,15 @@ describe('MIRACLESALE 쿠폰', () => {
     const coupon = createMiracleSaleCoupon();
 
     const discount = coupon.calculateDiscount(
-      createContext({
-        orderPrice: 100000,
+      createCouponContext({
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 100000,
+            quantity: 1,
+          },
+        ],
         now: new Date('2026-06-14T05:00:00'),
       }),
     );
@@ -235,7 +280,7 @@ describe('MIRACLESALE 쿠폰', () => {
     const coupon = createMiracleSaleCoupon();
 
     const isApplicable = coupon.isApplicable(
-      createContext({ now: new Date('2026-06-14T04:00:00') }),
+      createCouponContext({ now: new Date('2026-06-14T04:00:00') }),
     );
 
     expect(isApplicable).toBe(true);
@@ -245,7 +290,7 @@ describe('MIRACLESALE 쿠폰', () => {
     const coupon = createMiracleSaleCoupon();
 
     const isApplicable = coupon.isApplicable(
-      createContext({ now: new Date('2026-06-14T07:00:00') }),
+      createCouponContext({ now: new Date('2026-06-14T07:00:00') }),
     );
 
     expect(isApplicable).toBe(false);

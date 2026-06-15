@@ -1,8 +1,9 @@
-import { CouponContext } from '../../../src/interfaces/couponPolicy.interface.js';
+import { OrderContext } from '../../../src/interfaces/couponPolicy.interface.js';
 import { createCouponCombinations } from '../../../src/utils/couponCombination.js';
+import { priceCalculator } from '../../../src/utils/priceCalculator.js';
 import {
   createBogoCoupon,
-  createContext,
+  createCouponContext,
   createFixedAmountCoupon,
   createFreeShippingCoupon,
   createMiracleSaleCoupon,
@@ -17,7 +18,10 @@ describe('couponCombination', () => {
       createMiracleSaleCoupon(),
     ];
 
-    const combinations = createCouponCombinations(createContext(), coupons);
+    const combinations = createCouponCombinations(
+      createCouponContext(),
+      coupons,
+    );
 
     expect(combinations).toEqual([
       [],
@@ -42,7 +46,10 @@ describe('couponCombination', () => {
       createMiracleSaleCoupon(),
     ];
 
-    const combinations = createCouponCombinations(createContext(), coupons);
+    const combinations = createCouponCombinations(
+      createCouponContext(),
+      coupons,
+    );
 
     const hasMoreThanTwoCoupons = combinations.some(
       (combination) => combination.length > 2,
@@ -59,7 +66,7 @@ describe('couponCombination', () => {
       createMiracleSaleCoupon(), // 비활성화
     ];
 
-    const context: CouponContext = {
+    const context: OrderContext = {
       orderProducts: [
         {
           productId: 'product-1',
@@ -68,13 +75,13 @@ describe('couponCombination', () => {
           quantity: 3,
         },
       ],
-      orderPrice: 60000,
-      deliveryFee: 3000,
       isIsland: false,
       now: new Date('2026-06-14T10:00:00'),
     };
 
-    const combinations = createCouponCombinations(context, coupons);
+    const couponContext = priceCalculator.createCouponContext(context);
+
+    const combinations = createCouponCombinations(couponContext, coupons);
 
     expect(combinations).toEqual([
       [],

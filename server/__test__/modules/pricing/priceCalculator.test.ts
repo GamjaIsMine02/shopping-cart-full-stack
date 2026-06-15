@@ -1,16 +1,17 @@
-import { CouponContext } from '../../../src/interfaces/couponPolicy.interface.js';
+import { OrderContext } from '../../../src/interfaces/couponPolicy.interface.js';
 import { priceCalculator } from '../../../src/utils/priceCalculator.js';
 import {
   createFixedAmountCoupon,
   createBogoCoupon,
   createFreeShippingCoupon,
   createMiracleSaleCoupon,
+  createCouponContext,
 } from '../../helpers/createCoupons.js';
 
 describe('priceCalculator', () => {
   describe('주문 금액 계산', () => {
     test('주문 금액은 상품 가격과 수량의 합으로 계산한다', () => {
-      const context: CouponContext = {
+      const context: OrderContext = {
         orderProducts: [
           {
             productId: 'product-1',
@@ -25,8 +26,6 @@ describe('priceCalculator', () => {
             quantity: 2,
           },
         ],
-        orderPrice: 88000,
-        deliveryFee: 3000,
         isIsland: false,
         now: new Date('2026-06-14T10:00:00'),
       };
@@ -39,7 +38,7 @@ describe('priceCalculator', () => {
 
   describe('배송비 계산', () => {
     test('주문 금액이 100,000원 이상이면 기본 배송비는 0원이다', () => {
-      const context: CouponContext = {
+      const context: OrderContext = {
         orderProducts: [
           {
             productId: 'product-1',
@@ -48,8 +47,6 @@ describe('priceCalculator', () => {
             quantity: 2,
           },
         ],
-        orderPrice: 100000,
-        deliveryFee: 0,
         isIsland: false,
         now: new Date('2026-06-14T10:00:00'),
       };
@@ -59,7 +56,7 @@ describe('priceCalculator', () => {
       expect(deliveryFee).toBe(0);
     });
     test('주문 금액이 100,000원 미만이면 기본 배송비는 3,000원이다', () => {
-      const context: CouponContext = {
+      const context: OrderContext = {
         orderProducts: [
           {
             productId: 'product-1',
@@ -68,8 +65,6 @@ describe('priceCalculator', () => {
             quantity: 2,
           },
         ],
-        orderPrice: 80000,
-        deliveryFee: 3000,
         isIsland: false,
         now: new Date('2026-06-14T10:00:00'),
       };
@@ -79,7 +74,7 @@ describe('priceCalculator', () => {
       expect(deliveryFee).toBe(3000);
     });
     test('도서산간 지역이면 배송비 3,000원이 추가된다', () => {
-      const context: CouponContext = {
+      const context: OrderContext = {
         orderProducts: [
           {
             productId: 'product-1',
@@ -88,8 +83,6 @@ describe('priceCalculator', () => {
             quantity: 2,
           },
         ],
-        orderPrice: 100000,
-        deliveryFee: 0,
         isIsland: true,
         now: new Date('2026-06-14T10:00:00'),
       };
@@ -102,7 +95,7 @@ describe('priceCalculator', () => {
 
   describe('복합 쿠폰 계산', () => {
     test('정액 할인 쿠폰을 먼저 적용한 뒤, 정율 할인 쿠폰을 적용한다', () => {
-      const context: CouponContext = {
+      const context = createCouponContext({
         orderProducts: [
           {
             productId: 'product-1',
@@ -111,11 +104,9 @@ describe('priceCalculator', () => {
             quantity: 2,
           },
         ],
-        orderPrice: 105000,
-        deliveryFee: 0,
         isIsland: false,
         now: new Date('2026-06-14T06:00:00'),
-      };
+      });
       const fixedAmountCoupon = createFixedAmountCoupon();
       const miracleSaleCoupon = createMiracleSaleCoupon();
       const coupons = [fixedAmountCoupon, miracleSaleCoupon];
@@ -130,11 +121,10 @@ describe('priceCalculator', () => {
         couponIds: [fixedAmountCoupon.couponId, miracleSaleCoupon.couponId],
         productDiscountPrice: 35000,
         deliveryDiscountPrice: 0,
-        totalDiscountPrice: 35000,
       });
     });
     test('가능한 쿠폰 조합 중 할인 효과가 가장 큰 조합을 선택한다', () => {
-      const context: CouponContext = {
+      const context = createCouponContext({
         orderProducts: [
           {
             productId: 'product-1',
@@ -149,11 +139,9 @@ describe('priceCalculator', () => {
             quantity: 3,
           },
         ],
-        orderPrice: 600000,
-        deliveryFee: 3000,
         isIsland: true,
         now: new Date('2026-06-14T06:00:00'),
-      };
+      });
       const fixedAmountCoupon = createFixedAmountCoupon();
       const bogoCoupon = createBogoCoupon();
       const freeShippingCoupon = createFreeShippingCoupon();
@@ -176,11 +164,10 @@ describe('priceCalculator', () => {
         couponIds: [bogoCoupon.couponId, miracleSaleCoupon.couponId],
         productDiscountPrice: 250000,
         deliveryDiscountPrice: 0,
-        totalDiscountPrice: 250000,
       });
     });
     test('선택한 쿠폰의 id와 총 할인 금액을 함께 반환한다', () => {
-      const context: CouponContext = {
+      const context = createCouponContext({
         orderProducts: [
           {
             productId: 'product-1',
@@ -189,11 +176,9 @@ describe('priceCalculator', () => {
             quantity: 1,
           },
         ],
-        orderPrice: 60000,
-        deliveryFee: 6000,
         isIsland: true,
         now: new Date('2026-06-14T10:00:00'),
-      };
+      });
       const freeShippingCoupon = createFreeShippingCoupon();
 
       const discount = priceCalculator.calculateSelectedCouponDiscount(
@@ -204,8 +189,7 @@ describe('priceCalculator', () => {
       expect(discount).toEqual({
         couponIds: [freeShippingCoupon.couponId],
         productDiscountPrice: 0,
-        deliveryDiscountPrice: 6000,
-        totalDiscountPrice: 6000,
+        deliveryDiscountPrice: 0,
       });
     });
   });
