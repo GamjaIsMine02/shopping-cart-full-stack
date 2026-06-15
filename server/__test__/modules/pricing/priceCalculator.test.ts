@@ -1,0 +1,172 @@
+import { CouponContext } from '../../../src/interfaces/couponPolicy.interface.js';
+import { priceCalculator } from '../../../src/utils/priceCalculator.js';
+import {
+  createFixedAmountCoupon,
+  createBogoCoupon,
+  createFreeShippingCoupon,
+  createMiracleSaleCoupon,
+} from '../../helpers/createCoupons.js';
+
+describe('priceCalculator', () => {
+  describe('주문 금액 계산', () => {
+    test('주문 금액은 상품 가격과 수량의 합으로 계산한다', () => {
+      const context: CouponContext = {
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 20000,
+            quantity: 3,
+          },
+          {
+            productId: 'product-2',
+            productName: '상품B',
+            productPrice: 14000,
+            quantity: 2,
+          },
+        ],
+        orderPrice: 88000,
+        deliveryFee: 3000,
+        isIsland: false,
+        now: new Date('2026-06-14T10:00:00'),
+      };
+
+      const orderPrice = priceCalculator.calculateOrderPrice(context);
+
+      expect(orderPrice).toBe(88000);
+    });
+  });
+
+  describe('배송비 계산', () => {
+    test('주문 금액이 100,000원 이상이면 기본 배송비는 0원이다', () => {
+      const context: CouponContext = {
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 50000,
+            quantity: 2,
+          },
+        ],
+        orderPrice: 100000,
+        deliveryFee: 0,
+        isIsland: false,
+        now: new Date('2026-06-14T10:00:00'),
+      };
+
+      const deliveryFee = priceCalculator.calculateDeliveryFee(context);
+
+      expect(deliveryFee).toBe(0);
+    });
+    test('주문 금액이 100,000원 미만이면 기본 배송비는 3,000원이다', () => {
+      const context: CouponContext = {
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 40000,
+            quantity: 2,
+          },
+        ],
+        orderPrice: 80000,
+        deliveryFee: 3000,
+        isIsland: false,
+        now: new Date('2026-06-14T10:00:00'),
+      };
+
+      const deliveryFee = priceCalculator.calculateDeliveryFee(context);
+
+      expect(deliveryFee).toBe(3000);
+    });
+    test('도서산간 지역이면 배송비 3,000원이 추가된다', () => {
+      const context: CouponContext = {
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 50000,
+            quantity: 2,
+          },
+        ],
+        orderPrice: 100000,
+        deliveryFee: 0,
+        isIsland: true,
+        now: new Date('2026-06-14T10:00:00'),
+      };
+
+      const deliveryFee = priceCalculator.calculateDeliveryFee(context);
+
+      expect(deliveryFee).toBe(3000);
+    });
+  });
+
+  describe('복합 쿠폰 계산', () => {
+    test('정액 할인 쿠폰을 먼저 적용한 뒤, 정율 할인 쿠폰을 적용한다', () => {
+      const context: CouponContext = {
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 52500,
+            quantity: 2,
+          },
+        ],
+        orderPrice: 105000,
+        deliveryFee: 0,
+        isIsland: false,
+        now: new Date('2026-06-14T06:00:00'),
+      };
+      const coupons = [
+        createFixedAmountCoupon(),
+        createBogoCoupon(), // 비활성화
+        createFreeShippingCoupon(),
+        createMiracleSaleCoupon(),
+      ];
+
+      const discountPrice = priceCalculator.calculateCouponDiscount(
+        context,
+        coupons,
+      );
+
+      // 105000에서 정액 쿠폰으로 5000원 제외, 100000원 중 정율 쿠폰으로 30000원 제외 -> 총 할인 금액: 35000원
+      expect(discountPrice.productDiscountPrice).toBe(35000);
+    });
+    test('가능한 쿠폰 조합 중 할인 효과가 가장 큰 조합을 선택한다', () => {
+      const context: CouponContext = {
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 150000,
+            quantity: 2,
+          },
+          {
+            productId: 'product-2',
+            productName: '상품B',
+            productPrice: 100000,
+            quantity: 3,
+          },
+        ],
+        orderPrice: 600000,
+        deliveryFee: 3000,
+        isIsland: true,
+        now: new Date('2026-06-14T06:00:00'),
+      };
+      const coupons = [
+        createFixedAmountCoupon(),
+        createBogoCoupon(),
+        createFreeShippingCoupon(),
+        createMiracleSaleCoupon(),
+      ];
+
+      const discountPrice = priceCalculator.calculateBestDiscount(
+        context,
+        coupons,
+      );
+
+      // 모든 쿠폰이 사용 가능하다고 했을 때, 정액 쿠폰 중 가장 할인 금액이 큰 Bogo 쿠폰, 그 뒤로 정율 쿠폰인 Miracle 쿠폰 순으로 적용한다.
+      // 총 금액 600000원, Bogo 쿠폰 적용 시 100000원 할인, 이후 남은 금액 500000원에 30% 할인을 적용하면 150000원 할인 -> 총 250000원 할인
+      expect(discountPrice.productDiscountPrice).toBe(250000);
+    });
+  });
+});
