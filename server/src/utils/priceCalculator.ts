@@ -1,6 +1,7 @@
 import {
   CouponContext,
   CouponDiscount,
+  CouponDiscountResult,
   CouponPolicy,
 } from '../interfaces/couponPolicy.interface.js';
 import { createCouponCombinations } from './couponCombination.js';
@@ -19,50 +20,39 @@ export const priceCalculator = {
     return defaultFee + isIslandFee;
   },
 
-  calculateBestDiscount(
+  calculateBestCouponDiscount(
     context: CouponContext,
     coupons: CouponPolicy[],
-  ): CouponDiscount {
-    // 모든 조합에 대해 할인 금액을 계산하고, 그 중 제일 할인 금액이 큰 CouponDiscount로 반환
-
-    // 1. 쿠폰 목록에 대해서 가능한 조합 가져오기
+  ): CouponDiscountResult {
     const combinations = createCouponCombinations(context, coupons);
 
-    // 가능한 쿠폰 조합들에 대해,
-    // 1. 조합당 할인 금액 계산
-    // 2. 이전 최고 할인 금액 불러오기
-    // 3.
-    return combinations.reduce(
-      (bestDiscount, combination) => {
-        // 이전 최고 할인 금액 가져오기
-        const bestDiscountPrice =
-          bestDiscount.productDiscountPrice +
-          bestDiscount.deliveryDiscountPrice;
+    return combinations.reduce((bestDiscount, combination) => {
+      const currentDiscount = this.calculateCouponDiscount(
+        context,
+        combination,
+      );
 
-        // 이 조합에 대해 할인 금액 가져오기
-        const discount = this.calculateCouponDiscount(context, combination);
+      if (
+        currentDiscount.totalDiscountPrice <= bestDiscount.totalDiscountPrice
+      ) {
+        return bestDiscount;
+      }
 
-        // 이 조합에 대해 상품 할인 + 배송 할인 금액 계산
-        const currentDiscountPrice =
-          discount.productDiscountPrice + discount.deliveryDiscountPrice;
+      return currentDiscount;
+    }, this.calculateCouponDiscount(context, []));
+  },
 
-        // 이전 최고 할인 금액이 더 클 경우 유지
-        if (currentDiscountPrice <= bestDiscountPrice) return bestDiscount;
-
-        // 이 조합에 대한 할인 금액이 큰 경우 업데이트
-        return discount;
-      },
-      {
-        productDiscountPrice: 0,
-        deliveryDiscountPrice: 0,
-      },
-    );
+  calculateSelectedCouponDiscount(
+    context: CouponContext,
+    selectedCoupons: CouponPolicy[],
+  ): CouponDiscountResult {
+    return this.calculateCouponDiscount(context, selectedCoupons);
   },
 
   calculateCouponDiscount(
     context: CouponContext,
     coupons: CouponPolicy[],
-  ): CouponDiscount {
+  ): CouponDiscountResult {
     const productDiscountPrice = this.calculateProductDiscountPrice(
       context,
       coupons,
@@ -73,8 +63,10 @@ export const priceCalculator = {
     );
 
     return {
+      couponIds: coupons.map((coupon) => coupon.couponId),
       productDiscountPrice,
       deliveryDiscountPrice,
+      totalDiscountPrice: productDiscountPrice + deliveryDiscountPrice,
     };
   },
   calculateProductDiscountPrice(

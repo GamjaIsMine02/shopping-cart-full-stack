@@ -116,20 +116,22 @@ describe('priceCalculator', () => {
         isIsland: false,
         now: new Date('2026-06-14T06:00:00'),
       };
-      const coupons = [
-        createFixedAmountCoupon(),
-        createBogoCoupon(), // 비활성화
-        createFreeShippingCoupon(),
-        createMiracleSaleCoupon(),
-      ];
+      const fixedAmountCoupon = createFixedAmountCoupon();
+      const miracleSaleCoupon = createMiracleSaleCoupon();
+      const coupons = [fixedAmountCoupon, miracleSaleCoupon];
 
-      const discountPrice = priceCalculator.calculateCouponDiscount(
+      const discount = priceCalculator.calculateCouponDiscount(
         context,
         coupons,
       );
 
       // 105000에서 정액 쿠폰으로 5000원 제외, 100000원 중 정율 쿠폰으로 30000원 제외 -> 총 할인 금액: 35000원
-      expect(discountPrice.productDiscountPrice).toBe(35000);
+      expect(discount).toEqual({
+        couponIds: [fixedAmountCoupon.couponId, miracleSaleCoupon.couponId],
+        productDiscountPrice: 35000,
+        deliveryDiscountPrice: 0,
+        totalDiscountPrice: 35000,
+      });
     });
     test('가능한 쿠폰 조합 중 할인 효과가 가장 큰 조합을 선택한다', () => {
       const context: CouponContext = {
@@ -152,21 +154,59 @@ describe('priceCalculator', () => {
         isIsland: true,
         now: new Date('2026-06-14T06:00:00'),
       };
+      const fixedAmountCoupon = createFixedAmountCoupon();
+      const bogoCoupon = createBogoCoupon();
+      const freeShippingCoupon = createFreeShippingCoupon();
+      const miracleSaleCoupon = createMiracleSaleCoupon();
       const coupons = [
-        createFixedAmountCoupon(),
-        createBogoCoupon(),
-        createFreeShippingCoupon(),
-        createMiracleSaleCoupon(),
+        fixedAmountCoupon,
+        bogoCoupon,
+        freeShippingCoupon,
+        miracleSaleCoupon,
       ];
 
-      const discountPrice = priceCalculator.calculateBestDiscount(
+      const discount = priceCalculator.calculateBestCouponDiscount(
         context,
         coupons,
       );
 
       // 모든 쿠폰이 사용 가능하다고 했을 때, 정액 쿠폰 중 가장 할인 금액이 큰 Bogo 쿠폰, 그 뒤로 정율 쿠폰인 Miracle 쿠폰 순으로 적용한다.
       // 총 금액 600000원, Bogo 쿠폰 적용 시 100000원 할인, 이후 남은 금액 500000원에 30% 할인을 적용하면 150000원 할인 -> 총 250000원 할인
-      expect(discountPrice.productDiscountPrice).toBe(250000);
+      expect(discount).toEqual({
+        couponIds: [bogoCoupon.couponId, miracleSaleCoupon.couponId],
+        productDiscountPrice: 250000,
+        deliveryDiscountPrice: 0,
+        totalDiscountPrice: 250000,
+      });
+    });
+    test('선택한 쿠폰의 id와 총 할인 금액을 함께 반환한다', () => {
+      const context: CouponContext = {
+        orderProducts: [
+          {
+            productId: 'product-1',
+            productName: '상품A',
+            productPrice: 60000,
+            quantity: 1,
+          },
+        ],
+        orderPrice: 60000,
+        deliveryFee: 6000,
+        isIsland: true,
+        now: new Date('2026-06-14T10:00:00'),
+      };
+      const freeShippingCoupon = createFreeShippingCoupon();
+
+      const discount = priceCalculator.calculateSelectedCouponDiscount(
+        context,
+        [freeShippingCoupon],
+      );
+
+      expect(discount).toEqual({
+        couponIds: [freeShippingCoupon.couponId],
+        productDiscountPrice: 0,
+        deliveryDiscountPrice: 6000,
+        totalDiscountPrice: 6000,
+      });
     });
   });
 });

@@ -10,9 +10,7 @@ export const createCouponCombinations = (
   coupons: CouponPolicy[],
 ) => {
   // 현재 쿠폰 정책에 의해 사용 가능한 쿠폰을 추출
-  const availableCoupons = coupons.filter((coupon) =>
-    coupon.isApplicable(context),
-  );
+  const availableCoupons = filterApplicableCoupons(context, coupons);
 
   // 사용 가능한 쿠폰 목록의 모든 조합을 반환
   const emptyCombination = [[]];
@@ -28,4 +26,11 @@ export const createCouponCombinations = (
     ...oneCouponCombinations,
     ...twoCouponCombinations,
   ];
+};
+
+export const filterApplicableCoupons = (
+  context: CouponContext,
+  coupons: CouponPolicy[],
+) => {
+  return coupons.filter((coupon) => coupon.isApplicable(context));
 };

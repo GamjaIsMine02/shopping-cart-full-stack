@@ -20,6 +20,11 @@ export type CouponDiscount = {
   deliveryDiscountPrice: number;
 };
 
+export type CouponDiscountResult = CouponDiscount & {
+  couponIds: string[];
+  totalDiscountPrice: number;
+};
+
 export interface CouponPolicy {
   couponId: string;
   expiresAt: Date;
