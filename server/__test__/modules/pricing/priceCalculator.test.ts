@@ -189,7 +189,7 @@ describe('priceCalculator', () => {
       expect(discount).toEqual({
         couponIds: [freeShippingCoupon.couponId],
         productDiscountPrice: 0,
-        deliveryDiscountPrice: 0,
+        deliveryDiscountPrice: 6000,
       });
     });
   });

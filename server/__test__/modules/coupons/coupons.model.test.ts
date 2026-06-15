@@ -173,7 +173,7 @@ describe('FREESHIPPING 쿠폰', () => {
 
     expect(discount).toEqual({
       productDiscountPrice: 0,
-      deliveryDiscountPrice: 0,
+      deliveryDiscountPrice: 3000,
     });
   });
 
@@ -196,7 +196,7 @@ describe('FREESHIPPING 쿠폰', () => {
 
     expect(discount).toEqual({
       productDiscountPrice: 0,
-      deliveryDiscountPrice: 0,
+      deliveryDiscountPrice: 6000,
     });
   });
 
