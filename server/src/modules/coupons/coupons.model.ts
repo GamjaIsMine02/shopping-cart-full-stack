@@ -10,11 +10,11 @@ type FixedAmountCouponParams = {
   minimumOrderPrice: number;
   discountPrice: number;
 };
-
 export class FixedAmountCoupon implements CouponPolicy {
   couponId;
   expiresAt;
   type = 'FIXED_AMOUNT' as const;
+  discountType = 'FIXED' as const;
 
   minimumOrderPrice;
   discountPrice;
@@ -50,6 +50,7 @@ export class BogoCoupon implements CouponPolicy {
   couponId;
   expiresAt;
   type = 'BOGO' as const;
+  discountType = 'FIXED' as const;
   minimumQuantity;
 
   constructor(params: BogoCouponParams) {
@@ -92,11 +93,11 @@ type FreeShippingCouponParams = {
   expiresAt: Date;
   minimumOrderPrice: number;
 };
-
 export class FreeShippingCoupon implements CouponPolicy {
   couponId;
   expiresAt;
   type = 'FREE_SHIPPING' as const;
+  discountType = 'DELIVERY' as const;
   minimumOrderPrice;
 
   constructor(params: FreeShippingCouponParams) {
@@ -126,11 +127,11 @@ type MiracleSaleCouponParams = {
   startHour: number;
   endHour: number;
 };
-
 export class MiracleSaleCoupon implements CouponPolicy {
   couponId;
   expiresAt;
   type = 'RATE' as const;
+  discountType = 'RATE' as const;
   discountRate;
   startHour;
   endHour;
@@ -153,12 +154,8 @@ export class MiracleSaleCoupon implements CouponPolicy {
     );
   }
   calculateDiscount(context: CouponContext): CouponDiscount {
-    const totalPrice = context.orderProducts.reduce((sum, product) => {
-      return sum + product.productPrice * product.quantity;
-    }, 0);
-
     return {
-      productDiscountPrice: totalPrice * this.discountRate,
+      productDiscountPrice: context.orderPrice * this.discountRate,
       deliveryDiscountPrice: 0,
     };
   }
