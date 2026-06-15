@@ -1,5 +1,5 @@
 import { CouponContext } from '../../../src/interfaces/couponPolicy.interface.js';
-import { createCouponCombinations } from '../../../src/utils/\bcouponCombination.js';
+import { createCouponCombinations } from '../../../src/utils/couponCombination.js';
 import {
   createBogoCoupon,
   createContext,
