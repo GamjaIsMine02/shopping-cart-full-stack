@@ -82,7 +82,7 @@ describe('order model 테스트', () => {
 
       expect(order.isIsland).toEqual(false);
 
-      order.changeDeliveryArea();
+      order.changeDeliveryArea(true);
       expect(order.isIsland).toEqual(true);
     });
   });

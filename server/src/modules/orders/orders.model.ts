@@ -33,15 +33,15 @@ export class Order {
   }
 
   // 배송지 변경
-  changeDeliveryArea() {
-    this.isIsland = !this.isIsland;
+  changeDeliveryArea(isIsland: boolean) {
+    this.isIsland = isIsland;
   }
 
   validateProductCount(products: OrderParams['products']) {
     if (products.length === 0)
       throw new ModelError(
         'EMPTY_ORDER_PRODUCTS',
-        '주문 목록 상품이 비어 있습니다.',
+        '주문 상품 목록이 비어 있습니다.',
       );
   }
   validateCouponCount(couponIds: string[]) {
