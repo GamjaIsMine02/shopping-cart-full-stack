@@ -1,4 +1,5 @@
 import { CartItem } from '../modules/cart/cartItem.model.js';
+import { Order } from '../modules/orders/orders.model.js';
 import { Product } from '../modules/products/product.model.js';
 
 export type ProductRepository = {
@@ -15,4 +16,10 @@ export type CartItemRepository = {
   findByProductId(productId: string): CartItem | undefined;
   deleteById(cartItemId: string): boolean;
   deleteByProductId(productId: string): void;
+};
+
+export type OrderRepository = {
+  save(order: Order): Order;
+  findAll(): Order[];
+  findById(orderId: string): Order | undefined;
 };
