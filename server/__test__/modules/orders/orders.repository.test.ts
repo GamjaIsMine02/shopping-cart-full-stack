@@ -1,6 +1,6 @@
 import { ordersDB } from '../../../src/db.js';
-import { orderRepository } from '../../../src/modules/orders/coupons.repository.js';
 import { Order } from '../../../src/modules/orders/orders.model.js';
+import { orderRepository } from '../../../src/modules/orders/orders.repository.js';
 
 const createOrder = (orderId = 'order-1') =>
   new Order({
