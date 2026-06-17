@@ -13,6 +13,8 @@ type FixedAmountCouponParams = {
 export class FixedAmountCoupon implements CouponPolicy {
   couponId;
   expiresAt;
+  couponName = '5,000원 할인 쿠폰';
+  couponDescription = '최소 주문 금액: 100,000원';
   type = 'FIXED_AMOUNT' as const;
   discountType = 'FIXED' as const;
 
@@ -49,8 +51,12 @@ type BogoCouponParams = {
 export class BogoCoupon implements CouponPolicy {
   couponId;
   expiresAt;
+  couponName = '2개 구매 시 1개 무료 쿠폰';
+  couponDescription = '';
+
   type = 'BOGO' as const;
   discountType = 'FIXED' as const;
+
   minimumQuantity;
 
   constructor(params: BogoCouponParams) {
@@ -96,6 +102,8 @@ type FreeShippingCouponParams = {
 export class FreeShippingCoupon implements CouponPolicy {
   couponId;
   expiresAt;
+  couponName = '5만원 이상 구매 시 무료 배송 쿠폰';
+  couponDescription = '최소 주문 금액: 50,000원';
   type = 'FREE_SHIPPING' as const;
   discountType = 'DELIVERY' as const;
   minimumOrderPrice;
@@ -130,6 +138,8 @@ type MiracleSaleCouponParams = {
 export class MiracleSaleCoupon implements CouponPolicy {
   couponId;
   expiresAt;
+  couponName = '미라클모닝 30% 할인 쿠폰';
+  couponDescription = '사용 가능 시간: 오전 4시부터 7시까지';
   type = 'RATE' as const;
   discountType = 'RATE' as const;
   discountRate;

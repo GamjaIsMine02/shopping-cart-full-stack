@@ -35,6 +35,9 @@ export type CouponDiscountResult = CouponDiscount & {
 
 export interface CouponPolicy {
   couponId: string;
+  couponName: string;
+  couponDescription: string;
+
   expiresAt: Date;
   type: CouponType;
   discountType: DiscountCouponType;
