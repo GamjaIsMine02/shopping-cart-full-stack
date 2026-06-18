@@ -14,7 +14,7 @@ type UseQueryResult<T> = {
 
 export const useQuery = <T>(
   queryKey: string,
-  queryFn: (id?) => Promise<T>,
+  queryFn: (id?: string) => Promise<T>,
   id?: string,
 ): UseQueryResult<T> => {
   const cachedData = queryCache.get(queryKey) as T | undefined;

@@ -5,15 +5,15 @@ import type {
   PatchOrderResponse,
   PostOrderRequest,
   PostOrderResponse,
-} from '../../api/orderDraft/orderApi.types';
-import { useQuery } from '../../shared/hooks/useQuery';
+} from '../../../api/orderDraft/orderApi.types';
 import {
   getOrder,
   patchOrderCouponIds,
   patchOrderIsIsland,
   postOrder,
-} from '../../api/orderDraft/orderApi';
-import { useMutation } from '../../shared/hooks/useMutation';
+} from '../../../api/orderDraft/orderApi';
+import { useQuery } from '../../../shared/hooks/useQuery';
+import { useMutation } from '../../../shared/hooks/useMutation';
 
 export type PriceInfo = {
   orderPrice: number;
@@ -23,19 +23,14 @@ export type PriceInfo = {
   totalPrice: number;
 };
 
-export const useOrder = () => {
-  // 선택된 쿠폰 Id와 가져온 데이터
-  const [orderId, setOrderId] = useState<string | null>(null);
+export const useOrder = (orderId?: string) => {
   const { data, isLoading, error, refetch, setQueryData } =
-    useQuery<OrderResponse>('cart-items', getOrder, orderId);
+    useQuery<OrderResponse>(`order-${orderId ?? 'idle'}`, getOrder, orderId);
 
-  const {
-    mutate: postOrderMutate,
-    isLoading: isPostingOrder,
-    error: postOrderError,
-  } = useMutation<PostOrderRequest, PostOrderResponse>(
-    ({ products, couponIds }) => postOrder({ products, couponIds }),
-  );
+  const { mutate: postOrderMutate, isLoading: isPostingOrder } = useMutation<
+    PostOrderRequest,
+    PostOrderResponse
+  >(({ products }) => postOrder({ products }));
 
   const {
     mutate: patchOrderCouponIdsMutate,
@@ -60,19 +55,18 @@ export const useOrder = () => {
   const loadOrder = async () => refetch();
 
   // 주문 생성
-  const createOrder = async ({ products, couponIds }: PostOrderRequest) => {
-    await postOrderMutate(
+  const createOrder = async ({ products }: PostOrderRequest) => {
+    return postOrderMutate(
       {
         products,
-        couponIds,
       },
       {
         onMutate: () => {
           setOrderActionError(null);
         },
 
-        onError: () => {
-          setOrderActionError(postOrderError);
+        onError: (error) => {
+          setOrderActionError(error);
         },
       },
     );
