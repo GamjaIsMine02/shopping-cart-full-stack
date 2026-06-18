@@ -1,5 +1,3 @@
-// Order가 등록되는 시점은 최대 조합 계산 이후이므로, couponIds까지 받게 하도록 의도
-
 import { ModelError } from '../../errors/ModelError.js';
 
 type OrderParams = {

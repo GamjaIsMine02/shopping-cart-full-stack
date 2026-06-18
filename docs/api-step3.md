@@ -86,17 +86,17 @@ POST /orders
       "productId": "product-1",
       "quantity": 3
     }
-  ],
-  "couponIds": ["coupon-1", "coupon-2"]
+  ]
 }
 ```
 
-| 필드                   | 타입       | 필수 여부 | 설명                                             |
-| ---------------------- | ---------- | --------- | ------------------------------------------------ |
-| `products`             | `Array`    | 필수      | 주문할 상품 목록                                 |
-| `products[].productId` | `string`   | 필수      | 상품 id                                          |
-| `products[].quantity`  | `number`   | 필수      | 주문 수량                                        |
-| `couponIds`            | `string[]` | 필수      | 주문 생성 시 적용할 쿠폰 id 목록. 없으면 빈 배열 |
+| 필드                   | 타입     | 필수 여부 | 설명             |
+| ---------------------- | -------- | --------- | ---------------- |
+| `products`             | `Array`  | 필수      | 주문할 상품 목록 |
+| `products[].productId` | `string` | 필수      | 상품 id          |
+| `products[].quantity`  | `number` | 필수      | 주문 수량         |
+
+서버는 주문 생성 시점에 적용 가능한 쿠폰 조합을 계산하고, 할인 금액이 가장 큰 조합을 주문에 자동 적용한다.
 
 #### Response
 

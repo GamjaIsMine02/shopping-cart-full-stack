@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import express from 'express';
 import request from 'supertest';
 import { errorHandler } from '../../../src/middlewares/errorHandlers.js';
@@ -25,6 +26,15 @@ app.use(orderRouter);
 app.use(errorHandler);
 
 describe('주문 API', () => {
+  beforeAll(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(new Date(2026, 5, 18, 12));
+  });
+
+  afterAll(() => {
+    jest.useRealTimers();
+  });
+
   beforeEach(() => {
     resetTestDatabase();
     seedProduct(mockProduct.productId, mockProduct);
@@ -33,7 +43,7 @@ describe('주문 API', () => {
   test('주문 생성', async () => {
     const response = await request(app)
       .post('/orders')
-      .send({ products: [mockOrderProduct], couponIds: [] });
+      .send({ products: [mockOrderProduct] });
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual({ orderId: expect.any(String) });
@@ -42,7 +52,7 @@ describe('주문 API', () => {
   test('주문 조회 시 상품 정보와 가격 정보를 함께 응답한다', async () => {
     const orderResponse = await request(app)
       .post('/orders')
-      .send({ products: [mockOrderProduct], couponIds: [] });
+      .send({ products: [mockOrderProduct] });
 
     const response = await request(app).get(
       `/orders/${orderResponse.body.orderId}`,
@@ -61,13 +71,13 @@ describe('주문 API', () => {
         },
       ],
       isIsland: false,
-      couponIds: [],
+      couponIds: ['BOGO'],
       priceInfo: {
         orderPrice: 36000,
-        productDiscountPrice: 0,
+        productDiscountPrice: 12000,
         deliveryDiscountPrice: 0,
         deliveryFee: 3000,
-        totalPrice: 39000,
+        totalPrice: 27000,
       },
     });
   });
@@ -77,7 +87,6 @@ describe('주문 API', () => {
       .post('/orders')
       .send({
         products: [{ productId: mockProduct.productId, quantity: 10 }],
-        couponIds: [],
       });
 
     const response = await request(app)
@@ -100,7 +109,6 @@ describe('주문 API', () => {
       .post('/orders')
       .send({
         products: [{ productId: mockProduct.productId, quantity: 10 }],
-        couponIds: [],
       });
 
     const response = await request(app)
@@ -118,13 +126,13 @@ describe('주문 API', () => {
       deliveryDiscountPrice: 0,
       totalDiscountPrice: 5000,
     });
-    expect(order.body.couponIds).toEqual([]);
+    expect(order.body.couponIds).toEqual(['FIXED5000', 'BOGO']);
   });
 
   test('주문 배송 지역 변경', async () => {
     const orderResponse = await request(app)
       .post('/orders')
-      .send({ products: [mockOrderProduct], couponIds: [] });
+      .send({ products: [mockOrderProduct] });
 
     const response = await request(app)
       .patch(`/orders/${orderResponse.body.orderId}/delivery-area`)
@@ -133,10 +141,10 @@ describe('주문 API', () => {
     expect(response.status).toBe(200);
     expect(response.body).toEqual({
       orderPrice: 36000,
-      productDiscountPrice: 0,
+      productDiscountPrice: 12000,
       deliveryDiscountPrice: 0,
       deliveryFee: 6000,
-      totalPrice: 42000,
+      totalPrice: 30000,
     });
   });
 
@@ -153,7 +161,7 @@ describe('주문 API', () => {
   test('주문 상품 목록이 비어 있으면 에러 응답을 반환한다', async () => {
     const response = await request(app)
       .post('/orders')
-      .send({ products: [], couponIds: [] });
+      .send({ products: [] });
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual({

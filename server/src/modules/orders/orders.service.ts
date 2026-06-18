@@ -21,23 +21,22 @@ export type AddOrderRequest = {
     productId: string;
     quantity: number;
   }[];
-  couponIds: string[];
 };
 
 export const createOrderService = ({
   orderRepository,
   couponRepository,
   productRepository,
+  getNow = () => new Date(),
 }: {
   orderRepository: OrderRepository;
   couponRepository: CouponRepository;
   productRepository: ProductRepository;
+  getNow?: () => Date;
 }) => ({
   addOrder(params: AddOrderRequest) {
-    // 주문 생성에 필요한 최소한의 데이터를 받아 전체 데이터를 구성
-    const { products, couponIds } = params;
+    const { products } = params;
 
-    // 상품을 찾을 수 없거나, 상품 목록이 비어 있을 경우 에러 반환
     const productIds = products.map((product) => product.productId);
     findProductsOrThrow(productIds, productRepository);
 
@@ -45,9 +44,20 @@ export const createOrderService = ({
       const order = new Order({
         orderId: crypto.randomUUID(),
         products,
-        couponIds,
+        couponIds: [],
       });
 
+      const orderContext = createOrderContext(
+        order,
+        productRepository,
+        getNow(),
+      );
+      const bestDiscount = priceCalculator.calculateBestCouponDiscount(
+        orderContext,
+        couponRepository.findAll(),
+      );
+
+      order.changeCoupons(bestDiscount.couponIds);
       orderRepository.save(order);
 
       return { orderId: order.orderId };
@@ -61,14 +71,23 @@ export const createOrderService = ({
   getOrder(orderId: string) {
     const order = findOrderOrThrow(orderId, orderRepository);
 
-    return createOrderResponse(order, productRepository, couponRepository);
+    return createOrderResponse(
+      order,
+      productRepository,
+      couponRepository,
+      getNow(),
+    );
   },
   applyCoupons(orderId: string, couponIds: string[]) {
     const order = findOrderOrThrow(orderId, orderRepository);
     validateCouponIds(order, couponIds);
 
     const coupons = findCouponsOrThrow(couponIds, couponRepository);
-    const orderContext = createOrderContext(order, productRepository);
+    const orderContext = createOrderContext(
+      order,
+      productRepository,
+      getNow(),
+    );
 
     validateApplicableCoupons(coupons, orderContext);
 
@@ -77,14 +96,23 @@ export const createOrderService = ({
     orderRepository.save(order);
 
     // 새로 계산된 priceInfo 반환
-    return createOrderResponse(order, productRepository, couponRepository);
+    return createOrderResponse(
+      order,
+      productRepository,
+      couponRepository,
+      getNow(),
+    );
   },
   previewCouponDiscount(orderId: string, couponIds: string[]) {
     const order = findOrderOrThrow(orderId, orderRepository);
     validateCouponIds(order, couponIds);
 
     const coupons = findCouponsOrThrow(couponIds, couponRepository);
-    const orderContext = createOrderContext(order, productRepository);
+    const orderContext = createOrderContext(
+      order,
+      productRepository,
+      getNow(),
+    );
 
     validateApplicableCoupons(coupons, orderContext);
 
@@ -107,7 +135,12 @@ export const createOrderService = ({
     orderRepository.save(order);
 
     // 새로 계산된 priceInfo 반환
-    return createOrderResponse(order, productRepository, couponRepository);
+    return createOrderResponse(
+      order,
+      productRepository,
+      couponRepository,
+      getNow(),
+    );
   },
 });
 
@@ -153,6 +186,7 @@ const findCouponsOrThrow = (
 const createOrderContext = (
   order: Order,
   productRepository: ProductRepository,
+  now: Date,
 ): OrderContext => {
   const productIds = order.products.map((product) => product.productId);
   const products = findProductsOrThrow(productIds, productRepository);
@@ -161,7 +195,7 @@ const createOrderContext = (
   return {
     orderProducts,
     isIsland: order.isIsland,
-    now: new Date(),
+    now,
   };
 };
 
@@ -208,9 +242,10 @@ const createOrderResponse = (
   order: Order,
   productRepository: ProductRepository,
   couponRepository: CouponRepository,
+  now: Date,
 ) => {
   const coupons = findCouponsOrThrow(order.couponIds, couponRepository);
-  const orderContext = createOrderContext(order, productRepository);
+  const orderContext = createOrderContext(order, productRepository, now);
   const { orderProducts } = orderContext;
 
   // priceInfo 계산
