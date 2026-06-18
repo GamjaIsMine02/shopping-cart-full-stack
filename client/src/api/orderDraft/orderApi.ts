@@ -75,6 +75,9 @@ export const postOrder = async (
 ): Promise<PostOrderResponse> => {
   const response = await request(createApiUrl(`/orders`), {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(requestBody),
   });
 
@@ -88,6 +91,9 @@ export const patchOrderCouponIds = async (
 ): Promise<PatchOrderResponse> => {
   const response = await request(createApiUrl(`/orders/${orderId}/coupons`), {
     method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(requestBody),
   });
 
@@ -103,6 +109,9 @@ export const patchOrderIsIsland = async (
     createApiUrl(`/orders/${orderId}/delivery-area`),
     {
       method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(requestBody),
     },
   );
@@ -119,6 +128,9 @@ export const getDiscountPrice = async (
     createApiUrl(`/orders/${orderId}/discount-price`),
     {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(requestBody),
     },
   );
