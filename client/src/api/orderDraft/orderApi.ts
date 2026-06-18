@@ -2,6 +2,7 @@ import { ApiError, NetworkError } from '../errors/ApiError';
 import type {
   GetDiscountPriceRequest,
   OrderResponse,
+  PatchOrderRequest,
   PatchOrderResponse,
   PostOrderRequest,
   PostOrderResponse,
@@ -81,9 +82,9 @@ export const postOrder = async (
 };
 
 // 3. 주문 정보 수정 - 쿠폰ID
-export const patchOrderCoupons = async (
+export const patchOrderCouponIds = async (
   orderId: string,
-  requestBody: PostOrderRequest,
+  requestBody: Pick<PatchOrderRequest, 'couponIds'>,
 ): Promise<PatchOrderResponse> => {
   const response = await request(createApiUrl(`/orders/${orderId}/coupons`), {
     method: 'PATCH',
@@ -96,7 +97,7 @@ export const patchOrderCoupons = async (
 // 4. 주문 정보 수정 - 도서산간
 export const patchOrderIsIsland = async (
   orderId: string,
-  requestBody: PostOrderRequest,
+  requestBody: Pick<PatchOrderRequest, 'isIsland'>,
 ): Promise<PatchOrderResponse> => {
   const response = await request(
     createApiUrl(`/orders/${orderId}/delivery-area`),

@@ -22,7 +22,7 @@ export type PostOrderResponse = {
 };
 
 export type PatchOrderRequest = {
-  coupons: string[];
+  couponIds: string[];
   isIsland: boolean;
 };
 
