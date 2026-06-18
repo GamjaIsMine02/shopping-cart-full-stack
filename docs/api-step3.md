@@ -350,6 +350,111 @@ PATCH /orders/:orderId/delivery-area
 }
 ```
 
+### 2-5. 선택 쿠폰 할인 금액 미리보기
+
+쿠폰 모달에서 선택 중인 쿠폰 id 목록을 기준으로 할인 금액을 계산한다. 계산 결과만 반환하며 주문에 적용된 `couponIds`는 변경하지 않는다.
+
+```http
+POST /orders/:orderId/discount-price
+```
+
+#### Request
+
+```json
+{
+  "couponIds": ["FIXED5000"]
+}
+```
+
+| 필드        | 타입       | 필수 여부 | 설명                              |
+| ----------- | ---------- | --------- | --------------------------------- |
+| `couponIds` | `string[]` | 필수      | 미리보기할 쿠폰 id 목록. 최대 2개 |
+
+#### Response
+
+`200 OK`
+
+```json
+{
+  "couponIds": ["FIXED5000"],
+  "productDiscountPrice": 5000,
+  "deliveryDiscountPrice": 0,
+  "totalDiscountPrice": 5000
+}
+```
+
+| 필드                    | 타입       | 설명                             |
+| ----------------------- | ---------- | -------------------------------- |
+| `couponIds`             | `string[]` | 할인 계산에 사용한 쿠폰 id 목록  |
+| `productDiscountPrice`  | `number`   | 상품 금액에서 차감되는 할인 금액 |
+| `deliveryDiscountPrice` | `number`   | 배송비에서 차감되는 할인 금액    |
+| `totalDiscountPrice`    | `number`   | 상품 할인과 배송 할인의 합계     |
+
+#### Error
+
+쿠폰 id 목록 형식이 유효하지 않은 경우 `400 Bad Request`
+
+```json
+{
+  "code": "INVALID_COUPON_IDS",
+  "message": "유효하지 않은 쿠폰 목록입니다."
+}
+```
+
+쿠폰이 2개를 초과하는 경우 `400 Bad Request`
+
+```json
+{
+  "code": "EXCEEDS_MAX_COUPON_COUNT",
+  "message": "쿠폰은 최대 2개까지만 적용할 수 있습니다."
+}
+```
+
+중복된 쿠폰 id가 포함된 경우 `400 Bad Request`
+
+```json
+{
+  "code": "DUPLICATE_COUPON_ID",
+  "message": "중복된 쿠폰은 적용할 수 없습니다."
+}
+```
+
+현재 주문에 적용할 수 없는 쿠폰인 경우 `400 Bad Request`
+
+```json
+{
+  "code": "INVALID_COUPON",
+  "message": "적용할 수 없는 쿠폰입니다."
+}
+```
+
+주문이 존재하지 않는 경우 `404 Not Found`
+
+```json
+{
+  "code": "ORDER_NOT_FOUND",
+  "message": "존재하지 않는 주문입니다."
+}
+```
+
+쿠폰이 존재하지 않는 경우 `404 Not Found`
+
+```json
+{
+  "code": "COUPON_NOT_FOUND",
+  "message": "존재하지 않는 쿠폰입니다."
+}
+```
+
+주문에 포함된 상품이 존재하지 않는 경우 `404 Not Found`
+
+```json
+{
+  "code": "PRODUCT_NOT_FOUND",
+  "message": "존재하지 않는 상품입니다."
+}
+```
+
 ## 3. 쿠폰 API
 
 ### 3-1. 주문 기준 쿠폰 목록 조회
@@ -419,111 +524,6 @@ GET /orders/:orderId/coupons
 {
   "code": "ORDER_NOT_FOUND",
   "message": "존재하지 않는 주문입니다."
-}
-```
-
-주문에 포함된 상품이 존재하지 않는 경우 `404 Not Found`
-
-```json
-{
-  "code": "PRODUCT_NOT_FOUND",
-  "message": "존재하지 않는 상품입니다."
-}
-```
-
-### 3-2. 선택 쿠폰 할인 금액 미리보기
-
-쿠폰 모달에서 선택 중인 쿠폰 id 목록을 기준으로 할인 금액을 계산한다. 계산 결과만 반환하며 주문에 적용된 `couponIds`는 변경하지 않는다.
-
-```http
-POST /orders/:orderId/discount-price
-```
-
-#### Request
-
-```json
-{
-  "couponIds": ["FIXED5000"]
-}
-```
-
-| 필드 | 타입 | 필수 여부 | 설명 |
-| --- | --- | --- | --- |
-| `couponIds` | `string[]` | 필수 | 미리보기할 쿠폰 id 목록. 최대 2개 |
-
-#### Response
-
-`200 OK`
-
-```json
-{
-  "couponIds": ["FIXED5000"],
-  "productDiscountPrice": 5000,
-  "deliveryDiscountPrice": 0,
-  "totalDiscountPrice": 5000
-}
-```
-
-| 필드 | 타입 | 설명 |
-| --- | --- | --- |
-| `couponIds` | `string[]` | 할인 계산에 사용한 쿠폰 id 목록 |
-| `productDiscountPrice` | `number` | 상품 금액에서 차감되는 할인 금액 |
-| `deliveryDiscountPrice` | `number` | 배송비에서 차감되는 할인 금액 |
-| `totalDiscountPrice` | `number` | 상품 할인과 배송 할인의 합계 |
-
-#### Error
-
-쿠폰 id 목록 형식이 유효하지 않은 경우 `400 Bad Request`
-
-```json
-{
-  "code": "INVALID_COUPON_IDS",
-  "message": "유효하지 않은 쿠폰 목록입니다."
-}
-```
-
-쿠폰이 2개를 초과하는 경우 `400 Bad Request`
-
-```json
-{
-  "code": "EXCEEDS_MAX_COUPON_COUNT",
-  "message": "쿠폰은 최대 2개까지만 적용할 수 있습니다."
-}
-```
-
-중복된 쿠폰 id가 포함된 경우 `400 Bad Request`
-
-```json
-{
-  "code": "DUPLICATE_COUPON_ID",
-  "message": "중복된 쿠폰은 적용할 수 없습니다."
-}
-```
-
-현재 주문에 적용할 수 없는 쿠폰인 경우 `400 Bad Request`
-
-```json
-{
-  "code": "INVALID_COUPON",
-  "message": "적용할 수 없는 쿠폰입니다."
-}
-```
-
-주문이 존재하지 않는 경우 `404 Not Found`
-
-```json
-{
-  "code": "ORDER_NOT_FOUND",
-  "message": "존재하지 않는 주문입니다."
-}
-```
-
-쿠폰이 존재하지 않는 경우 `404 Not Found`
-
-```json
-{
-  "code": "COUPON_NOT_FOUND",
-  "message": "존재하지 않는 쿠폰입니다."
 }
 ```
 
