@@ -11,6 +11,10 @@ import { productRepository } from '../products/product.repository.js';
 import { priceCalculator } from '../../utils/priceCalculator.js';
 import { Product } from '../products/product.model.js';
 import { Order } from './orders.model.js';
+import type {
+  CouponPolicy,
+  OrderContext,
+} from '../../interfaces/couponPolicy.interface.js';
 
 export type AddOrderRequest = {
   products: {
@@ -60,26 +64,13 @@ export const createOrderService = ({
     return createOrderResponse(order, productRepository, couponRepository);
   },
   applyCoupons(orderId: string, couponIds: string[]) {
-    // 쿠폰 검증
     const order = findOrderOrThrow(orderId, orderRepository);
+    validateCouponIds(order, couponIds);
+
     const coupons = findCouponsOrThrow(couponIds, couponRepository);
+    const orderContext = createOrderContext(order, productRepository);
 
-    const productIds = order.products.map((product) => product.productId);
-    const products = findProductsOrThrow(productIds, productRepository);
-    const orderProducts = createOrderProductsResponse(order, products);
-
-    const orderContext = priceCalculator.createCouponContext({
-      orderProducts,
-      isIsland: order.isIsland,
-      now: new Date(),
-    });
-
-    const hasInvalidCoupon = coupons.some(
-      (coupon) => !coupon.isApplicable(orderContext),
-    );
-    if (hasInvalidCoupon) {
-      throw new AppError(400, 'INVALID_COUPON', '적용할 수 없는 쿠폰입니다.');
-    }
+    validateApplicableCoupons(coupons, orderContext);
 
     // 쿠폰 업데이트
     order.changeCoupons(couponIds);
@@ -87,6 +78,26 @@ export const createOrderService = ({
 
     // 새로 계산된 priceInfo 반환
     return createOrderResponse(order, productRepository, couponRepository);
+  },
+  previewCouponDiscount(orderId: string, couponIds: string[]) {
+    const order = findOrderOrThrow(orderId, orderRepository);
+    validateCouponIds(order, couponIds);
+
+    const coupons = findCouponsOrThrow(couponIds, couponRepository);
+    const orderContext = createOrderContext(order, productRepository);
+
+    validateApplicableCoupons(coupons, orderContext);
+
+    const discount = priceCalculator.calculateSelectedCouponDiscount(
+      orderContext,
+      coupons,
+    );
+
+    return {
+      ...discount,
+      totalDiscountPrice:
+        discount.productDiscountPrice + discount.deliveryDiscountPrice,
+    };
   },
   changeDeliveryArea(orderId: string, isIsland: boolean) {
     // 배송지 업데이트
@@ -139,22 +150,68 @@ const findCouponsOrThrow = (
   return coupons;
 };
 
+const createOrderContext = (
+  order: Order,
+  productRepository: ProductRepository,
+): OrderContext => {
+  const productIds = order.products.map((product) => product.productId);
+  const products = findProductsOrThrow(productIds, productRepository);
+  const orderProducts = createOrderProductsResponse(order, products);
+
+  return {
+    orderProducts,
+    isIsland: order.isIsland,
+    now: new Date(),
+  };
+};
+
+const validateCouponIds = (order: Order, couponIds: string[]) => {
+  if (
+    !Array.isArray(couponIds) ||
+    couponIds.some(
+      (couponId) => typeof couponId !== 'string' || couponId.trim() === '',
+    )
+  ) {
+    throw new AppError(
+      400,
+      'INVALID_COUPON_IDS',
+      '유효하지 않은 쿠폰 목록입니다.',
+    );
+  }
+
+  try {
+    order.validateCouponCount(couponIds);
+  } catch (error) {
+    if (error instanceof ModelError) {
+      throw new AppError(400, error.code, error.message);
+    }
+
+    throw error;
+  }
+};
+
+const validateApplicableCoupons = (
+  coupons: CouponPolicy[],
+  orderContext: OrderContext,
+) => {
+  const couponContext = priceCalculator.createCouponContext(orderContext);
+  const hasInvalidCoupon = coupons.some(
+    (coupon) => !coupon.isApplicable(couponContext),
+  );
+
+  if (hasInvalidCoupon) {
+    throw new AppError(400, 'INVALID_COUPON', '적용할 수 없는 쿠폰입니다.');
+  }
+};
+
 const createOrderResponse = (
   order: Order,
   productRepository: ProductRepository,
   couponRepository: CouponRepository,
 ) => {
-  const productIds = order.products.map((product) => product.productId);
-  const products = findProductsOrThrow(productIds, productRepository);
-
   const coupons = findCouponsOrThrow(order.couponIds, couponRepository);
-  const orderProducts = createOrderProductsResponse(order, products);
-
-  const orderContext = {
-    orderProducts,
-    isIsland: order.isIsland,
-    now: new Date(),
-  };
+  const orderContext = createOrderContext(order, productRepository);
+  const { orderProducts } = orderContext;
 
   // priceInfo 계산
   const orderPrice = priceCalculator.calculateOrderPrice(orderContext);

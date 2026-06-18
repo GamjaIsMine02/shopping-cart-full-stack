@@ -95,6 +95,32 @@ describe('주문 API', () => {
     });
   });
 
+  test('주문에 적용하지 않고 선택한 쿠폰의 할인 금액을 미리 계산한다', async () => {
+    const orderResponse = await request(app)
+      .post('/orders')
+      .send({
+        products: [{ productId: mockProduct.productId, quantity: 10 }],
+        couponIds: [],
+      });
+
+    const response = await request(app)
+      .post(`/orders/${orderResponse.body.orderId}/discount-price`)
+      .send({ couponIds: ['FIXED5000'] });
+
+    const order = await request(app).get(
+      `/orders/${orderResponse.body.orderId}`,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      couponIds: ['FIXED5000'],
+      productDiscountPrice: 5000,
+      deliveryDiscountPrice: 0,
+      totalDiscountPrice: 5000,
+    });
+    expect(order.body.couponIds).toEqual([]);
+  });
+
   test('주문 배송 지역 변경', async () => {
     const orderResponse = await request(app)
       .post('/orders')

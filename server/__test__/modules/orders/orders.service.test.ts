@@ -210,6 +210,69 @@ describe('Order Service', () => {
         },
       );
     });
+
+    test('쿠폰을 2개 초과하여 선택하면 에러를 반환한다', () => {
+      const createdOrder = orderService.addOrder({
+        products: [{ productId: 'product-1', quantity: 10 }],
+        couponIds: [],
+      });
+
+      expectAppError(
+        () =>
+          orderService.previewCouponDiscount(createdOrder.orderId, [
+            'FIXED5000',
+            'BOGO',
+            'FREESHIPPING',
+          ]),
+        {
+          statusCode: 400,
+          code: 'EXCEEDS_MAX_COUPON_COUNT',
+          message: '쿠폰은 최대 2개까지만 적용할 수 있습니다.',
+        },
+      );
+    });
+  });
+
+  describe('쿠폰 할인 미리보기', () => {
+    test('선택한 쿠폰의 할인 금액을 계산하고 주문의 쿠폰 상태는 변경하지 않는다', () => {
+      const createdOrder = orderService.addOrder({
+        products: [{ productId: 'product-1', quantity: 10 }],
+        couponIds: [],
+      });
+
+      const discount = orderService.previewCouponDiscount(
+        createdOrder.orderId,
+        ['FIXED5000'],
+      );
+      const order = orderService.getOrder(createdOrder.orderId);
+
+      expect(discount).toEqual({
+        couponIds: ['FIXED5000'],
+        productDiscountPrice: 5000,
+        deliveryDiscountPrice: 0,
+        totalDiscountPrice: 5000,
+      });
+      expect(order.couponIds).toEqual([]);
+    });
+
+    test('적용할 수 없는 쿠폰이면 에러를 반환한다', () => {
+      const createdOrder = orderService.addOrder({
+        products: [{ productId: 'product-1', quantity: 3 }],
+        couponIds: [],
+      });
+
+      expectAppError(
+        () =>
+          orderService.previewCouponDiscount(createdOrder.orderId, [
+            'FIXED5000',
+          ]),
+        {
+          statusCode: 400,
+          code: 'INVALID_COUPON',
+          message: '적용할 수 없는 쿠폰입니다.',
+        },
+      );
+    });
   });
 
   describe('배송 지역 변경', () => {

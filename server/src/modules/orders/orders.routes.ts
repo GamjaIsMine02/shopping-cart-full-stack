@@ -39,6 +39,19 @@ orderRouter.patch('/orders/:orderId/coupons', (req, res, next) => {
   }
 });
 
+orderRouter.post('/orders/:orderId/discount-price', (req, res, next) => {
+  try {
+    const discount = orderService.previewCouponDiscount(
+      req.params.orderId,
+      req.body?.couponIds,
+    );
+
+    res.status(200).json(discount);
+  } catch (error) {
+    next(error);
+  }
+});
+
 orderRouter.patch('/orders/:orderId/delivery-area', (req, res, next) => {
   try {
     const order = orderService.changeDeliveryArea(
