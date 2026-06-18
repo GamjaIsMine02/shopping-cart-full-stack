@@ -14,7 +14,6 @@ export type OrderResponse = {
 
 export type PostOrderRequest = {
   products: { productId: string; quantity: number }[];
-  couponIds: string[];
 };
 
 export type PostOrderResponse = {
