@@ -14,7 +14,8 @@ type UseQueryResult<T> = {
 
 export const useQuery = <T>(
   queryKey: string,
-  queryFn: () => Promise<T>,
+  queryFn: (id?) => Promise<T>,
+  id?: string,
 ): UseQueryResult<T> => {
   const cachedData = queryCache.get(queryKey) as T | undefined;
 
@@ -34,7 +35,7 @@ export const useQuery = <T>(
         error: null,
       }));
 
-      const result = await queryFn();
+      const result = await queryFn(id);
       queryCache.set(queryKey, result);
 
       setState({
