@@ -1,6 +1,12 @@
 export type OrderResponse = {
   orderId: string;
-  products: { productId: string; quantity: number }[];
+  products: {
+    productId: string;
+    productName: string;
+    productPrice: number;
+    imgUrl: string;
+    quantity: number;
+  }[];
   couponIds: string[];
   isIsland: boolean;
   priceInfo: {
