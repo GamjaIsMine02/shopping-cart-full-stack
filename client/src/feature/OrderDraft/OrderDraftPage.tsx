@@ -47,7 +47,7 @@ export const OrderDraftPage = () => {
 
   return (
     <Wrapper>
-      <Container>
+      <OrderDraftContainer>
         <Header
           left={
             <button type="button" onClick={() => navigate('/cart')}>
@@ -59,10 +59,15 @@ export const OrderDraftPage = () => {
         <ButtonArea>
           <Button disabled={isLoading}>결제하기</Button>
         </ButtonArea>
-      </Container>
+      </OrderDraftContainer>
     </Wrapper>
   );
 };
+
+const OrderDraftContainer = styled(Container)`
+  position: relative;
+  overflow: hidden;
+`;
 
 const ContentArea = styled.div`
   display: flex;

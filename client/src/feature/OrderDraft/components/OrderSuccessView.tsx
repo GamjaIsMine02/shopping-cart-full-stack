@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Description, Title } from '../../../shared/styles/common';
+import { Checkbox, Description, Title } from '../../../shared/styles/common';
 import type { OrderResponse } from '../../../api/orderDraft/orderApi.types';
 import { ItemLayout } from '../../../shared/components/ItemLayout';
 import { OrderSummary } from './OrderSummary';
@@ -93,7 +93,6 @@ export const OrderSuccessView = ({
         <CouponApplyButton onClick={() => overlay.open()}>
           쿠폰 적용
         </CouponApplyButton>
-        {overlay.modal}
 
         <DeliveryInfo>
           <DeliveryText>배송 정보</DeliveryText>
@@ -113,6 +112,7 @@ export const OrderSuccessView = ({
       <SectionFooter>
         <OrderSummary priceContext={priceContext} />
       </SectionFooter>
+      {overlay.modal}
     </Section>
   );
 };
@@ -174,13 +174,6 @@ const CheckboxText = styled.label`
   font-weight: 700;
 
   text-align: center;
-`;
-const Checkbox = styled.input`
-  width: 22px;
-  height: 22px;
-  margin: 0;
-
-  accent-color: #000000;
 `;
 
 const SectionFooter = styled.label``;
