@@ -17,9 +17,11 @@ export type PriceContextType = {
 export const OrderSuccessView = ({
   data,
   loadOrder,
+  changeOrderIsIsland,
 }: {
   data: OrderResponse;
   loadOrder: () => void;
+  changeOrderIsIsland: (isIsland: boolean) => void;
 }) => {
   // 총 상품 종류 개수
   const productKind = data.products.length;
@@ -39,7 +41,7 @@ export const OrderSuccessView = ({
   const priceContext: PriceContextType = {
     orderPrice: orderPrice,
     productDiscountPrice: productDiscountPrice,
-    deliveryFee: deliveryDiscountPrice + deliveryFee,
+    deliveryFee: deliveryFee - deliveryDiscountPrice,
     totalPrice: totalPrice,
   };
 
@@ -96,7 +98,13 @@ export const OrderSuccessView = ({
         <DeliveryInfo>
           <DeliveryText>배송 정보</DeliveryText>
           <CheckboxInfo>
-            <Checkbox type="checkbox" />
+            <Checkbox
+              type="checkbox"
+              checked={data.isIsland}
+              onChange={(event) =>
+                changeOrderIsIsland(event.currentTarget.checked)
+              }
+            />
             <CheckboxText htmlFor="">제주도 및 도서 산간 지역</CheckboxText>
           </CheckboxInfo>
         </DeliveryInfo>

@@ -18,8 +18,9 @@ export const OrderDraftPage = () => {
     isLoading,
     error,
     loadOrder,
+    changeOrderIsIsland,
+    orderFetchError,
     orderActionError,
-    modalActionError,
   } = useOrder(orderId);
 
   if (!orderId) {
@@ -34,7 +35,13 @@ export const OrderDraftPage = () => {
     } else if (cartFetchStatus === 'error') {
       return <OrderErrorView />;
     } else if (cartFetchStatus === 'success') {
-      return <OrderSuccessView data={data} loadOrder={loadOrder} />;
+      return (
+        <OrderSuccessView
+          data={data}
+          loadOrder={loadOrder}
+          changeOrderIsIsland={changeOrderIsIsland}
+        />
+      );
     }
   };
 

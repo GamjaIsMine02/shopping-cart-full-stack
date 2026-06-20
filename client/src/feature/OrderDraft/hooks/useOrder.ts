@@ -33,14 +33,6 @@ export const useOrder = (orderId?: string) => {
   >(({ products }) => postOrder({ products }));
 
   const {
-    mutate: patchOrderCouponIdsMutate,
-    isLoading: isPatchingCouponIdsOrder,
-    error: patchOrderCouponIdsError,
-  } = useMutation<Pick<PatchOrderRequest, 'couponIds'>, PatchOrderResponse>(
-    ({ couponIds }) => patchOrderCouponIds(orderId, { couponIds }),
-  );
-
-  const {
     mutate: patchOrderIsIslandMutate,
     isLoading: isPatchingIsIslandOrder,
     error: patchOrderIsIslandError,
@@ -48,8 +40,8 @@ export const useOrder = (orderId?: string) => {
     ({ isIsland }) => patchOrderIsIsland(orderId, { isIsland }),
   );
 
+  const [orderFetchError, setOrderFetchError] = useState<Error | null>(null);
   const [orderActionError, setOrderActionError] = useState<Error | null>(null);
-  const [modalActionError, setModalActionError] = useState<Error | null>(null);
 
   // 주문 조회
   const loadOrder = async () => refetch();
@@ -62,40 +54,11 @@ export const useOrder = (orderId?: string) => {
       },
       {
         onMutate: () => {
-          setOrderActionError(null);
+          setOrderFetchError(null);
         },
 
         onError: (error) => {
-          setOrderActionError(error);
-        },
-      },
-    );
-  };
-
-  // 주문 수정 - 쿠폰Id
-  const changeOrderCouponIds = async (couponIds: string[]) => {
-    const previousOrder = data;
-
-    await patchOrderCouponIdsMutate(
-      {
-        couponIds,
-      },
-      {
-        onMutate: () => {
-          setModalActionError(null);
-          setQueryData((previousOrder) => {
-            if (previousOrder.couponIds === couponIds) return previousOrder;
-
-            return {
-              ...previousOrder,
-              couponIds: couponIds,
-            };
-          });
-        },
-
-        onError: () => {
-          setQueryData(() => previousOrder);
-          setModalActionError(patchOrderCouponIdsError);
+          setOrderFetchError(error);
         },
       },
     );
@@ -105,13 +68,13 @@ export const useOrder = (orderId?: string) => {
   const changeOrderIsIsland = async (isIsland: boolean) => {
     const previousOrder = data;
 
-    await patchOrderIsIslandMutate(
+    const response = await patchOrderIsIslandMutate(
       {
         isIsland,
       },
       {
         onMutate: () => {
-          setModalActionError(null);
+          setOrderActionError(null);
           setQueryData((previousOrder) => {
             if (previousOrder.isIsland === isIsland) return previousOrder;
 
@@ -124,10 +87,18 @@ export const useOrder = (orderId?: string) => {
 
         onError: () => {
           setQueryData(() => previousOrder);
-          setModalActionError(patchOrderIsIslandError);
+          setOrderActionError(patchOrderIsIslandError);
         },
       },
     );
+
+    if (!response) return false;
+
+    setQueryData((order) => ({
+      ...order,
+      isIsland,
+      priceInfo: response.priceInfo,
+    }));
   };
 
   return {
@@ -136,9 +107,8 @@ export const useOrder = (orderId?: string) => {
     error,
     loadOrder,
     createOrder,
-    changeOrderCouponIds,
     changeOrderIsIsland,
+    orderFetchError,
     orderActionError,
-    modalActionError,
   };
 };
