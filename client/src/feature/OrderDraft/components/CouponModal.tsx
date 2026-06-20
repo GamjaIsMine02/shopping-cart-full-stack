@@ -3,13 +3,14 @@ import styled from 'styled-components';
 import { Notice } from '../../../shared/styles/common';
 import type { ReactNode } from 'react';
 import { useCouponsContext } from '../context/CouponProvider';
+import { Coupon } from './Coupon';
+import { formatDate } from '../utils/formatDate';
 
 export const CouponModal = ({ children }: { children: ReactNode }) => {
-  return createPortal(
+  return (
     <Backdrop>
       <Dialog role="dialog">{children}</Dialog>
-    </Backdrop>,
-    document.body,
+    </Backdrop>
   );
 };
 
@@ -39,16 +40,19 @@ const CouponModalList = () => {
   return (
     <Content>
       {data.couponList.map((coupon) => (
-        <label key={coupon.couponId}>
-          <input
+        <Coupon key={coupon.couponId} disabled={coupon.isDisabled}>
+          <Coupon.Checkbox
             type="checkbox"
             disabled={coupon.isDisabled}
             checked={selectedCouponIds.includes(coupon.couponId)}
             onChange={() => toggleCoupon(coupon.couponId)}
           />
-
-          {coupon.couponName}
-        </label>
+          <Coupon.Name>{coupon.couponName}</Coupon.Name>
+          <Coupon.Expiration>
+            만료일: {formatDate(coupon.couponExpiration)}
+          </Coupon.Expiration>
+          <Coupon.Description>{coupon.couponDescription}</Coupon.Description>
+        </Coupon>
       ))}
     </Content>
   );
@@ -75,7 +79,7 @@ const CouponModalApplyButton = ({
 
   return (
     <ApplyButton type="button" onClick={handleApply}>
-      총
+      총{' '}
       {isPreviewLoading
         ? '...'
         : (preview?.totalDiscountPrice ?? 0).toLocaleString()}
@@ -90,7 +94,7 @@ CouponModal.List = CouponModalList;
 CouponModal.ApplyButton = CouponModalApplyButton;
 
 const Backdrop = styled.div`
-  position: fixed;
+  position: absolute;
   z-index: 1000;
   inset: 0;
 

@@ -18,6 +18,14 @@ export const Description = styled.p`
   line-height: 1.4;
 `;
 
+export const Checkbox = styled.input`
+  width: 22px;
+  height: 22px;
+  margin: 0;
+
+  accent-color: #000000;
+`;
+
 export const Notice = styled.p`
   margin: 0;
 
