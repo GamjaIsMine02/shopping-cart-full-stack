@@ -16,7 +16,11 @@ export const OrderSummary = ({
           <PriceSummaryLine title="주문 금액" value={priceContext.orderPrice} />
           <PriceSummaryLine
             title="쿠폰 할인 금액"
-            value={-priceContext.productDiscountPrice}
+            value={
+              priceContext.productDiscountPrice !== 0
+                ? -priceContext.productDiscountPrice
+                : 0
+            }
           />
           <PriceSummaryLine title="배송비" value={priceContext.deliveryFee} />
           <Divider />
