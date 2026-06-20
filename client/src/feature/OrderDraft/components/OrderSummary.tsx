@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import type { PriceContextType } from './OrderSuccessView';
 import { PriceSummaryLine } from '../../../shared/components/PriceSummaryLine';
+import { Notice } from '../../../shared/styles/common';
 
 export const OrderSummary = ({
   priceContext,
@@ -10,9 +11,7 @@ export const OrderSummary = ({
   return (
     <>
       <SummarySection>
-        <DeliveryNotice>
-          총 주문 금액이 100,000원 이상일 경우 무료 배송됩니다.
-        </DeliveryNotice>
+        <Notice>총 주문 금액이 100,000원 이상일 경우 무료 배송됩니다.</Notice>
         <SummaryBox>
           <PriceSummaryLine title="주문 금액" value={priceContext.orderPrice} />
           <PriceSummaryLine
@@ -36,20 +35,6 @@ const SummarySection = styled.section`
   flex-direction: column;
   gap: 10px;
   margin-top: 8px;
-`;
-
-const DeliveryNotice = styled.p`
-  margin: 0;
-
-  color: #000000;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.4;
-
-  &::before {
-    content: 'ⓘ';
-    margin-right: 4px;
-  }
 `;
 
 const SummaryBox = styled.div`

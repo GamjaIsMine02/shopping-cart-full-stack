@@ -17,3 +17,17 @@ export const Description = styled.p`
   font-weight: 700;
   line-height: 1.4;
 `;
+
+export const Notice = styled.p`
+  margin: 0;
+
+  color: #000000;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  &::before {
+    content: 'ⓘ';
+    margin-right: 4px;
+  }
+`;
