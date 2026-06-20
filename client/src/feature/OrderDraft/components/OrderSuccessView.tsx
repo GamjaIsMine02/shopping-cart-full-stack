@@ -3,6 +3,9 @@ import { Description, Title } from '../../../shared/styles/common';
 import type { OrderResponse } from '../../../api/orderDraft/orderApi.types';
 import { ItemLayout } from '../../../shared/components/ItemLayout';
 import { OrderSummary } from './OrderSummary';
+import { useModal } from '../hooks/useModal';
+import { CouponModal } from './CouponModal';
+import { CouponsProvider } from '../context/CouponProvider';
 
 export type PriceContextType = {
   orderPrice: number;
@@ -11,7 +14,13 @@ export type PriceContextType = {
   totalPrice: number;
 };
 
-export const OrderSuccessView = ({ data }: { data: OrderResponse }) => {
+export const OrderSuccessView = ({
+  data,
+  loadOrder,
+}: {
+  data: OrderResponse;
+  loadOrder: () => void;
+}) => {
   // 총 상품 종류 개수
   const productKind = data.products.length;
   // 총 상품 개수
@@ -34,6 +43,17 @@ export const OrderSuccessView = ({ data }: { data: OrderResponse }) => {
     totalPrice: totalPrice,
   };
 
+  const overlay = useModal(({ close }) => (
+    <CouponsProvider orderId={data.orderId} appliedCouponIds={data.couponIds}>
+      <CouponModal>
+        <CouponModal.Header onClose={close} />
+        <CouponModal.Notice />
+        <CouponModal.List />
+        <CouponModal.ApplyButton onClose={close} onRefresh={loadOrder} />
+      </CouponModal>
+    </CouponsProvider>
+  ));
+
   return (
     <Section>
       <SectionHeader>
@@ -48,6 +68,7 @@ export const OrderSuccessView = ({ data }: { data: OrderResponse }) => {
         <OrderItemList>
           {data.products.map((product) => (
             <ItemLayout
+              key={product.productId}
               image={
                 <ItemLayout.Image
                   src={product.imgUrl}
@@ -67,7 +88,10 @@ export const OrderSuccessView = ({ data }: { data: OrderResponse }) => {
           ))}
         </OrderItemList>
 
-        <CouponApplyButton>쿠폰 적용</CouponApplyButton>
+        <CouponApplyButton onClick={() => overlay.open()}>
+          쿠폰 적용
+        </CouponApplyButton>
+        {overlay.modal}
 
         <DeliveryInfo>
           <DeliveryText>배송 정보</DeliveryText>

@@ -13,10 +13,14 @@ export const OrderDraftPage = () => {
   const location = useLocation();
   const { orderId } = location.state as { orderId: string };
 
-  const { data, isLoading, error, orderActionError, modalActionError } =
-    useOrder(orderId);
-
-  console.log(data);
+  const {
+    data,
+    isLoading,
+    error,
+    loadOrder,
+    orderActionError,
+    modalActionError,
+  } = useOrder(orderId);
 
   if (!orderId) {
     return <Navigate to="/cart" replace />;
@@ -30,7 +34,7 @@ export const OrderDraftPage = () => {
     } else if (cartFetchStatus === 'error') {
       return <OrderErrorView />;
     } else if (cartFetchStatus === 'success') {
-      return <OrderSuccessView data={data} />;
+      return <OrderSuccessView data={data} loadOrder={loadOrder} />;
     }
   };
 
