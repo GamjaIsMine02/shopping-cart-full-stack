@@ -59,7 +59,10 @@ orderRouter.patch('/orders/:orderId/delivery-area', (req, res, next) => {
       req.body?.isIsland,
     );
 
-    res.status(200).json(order.priceInfo);
+    res.status(200).json({
+      couponIds: order.couponIds,
+      priceInfo: order.priceInfo,
+    });
   } catch (error) {
     next(error);
   }
