@@ -5,7 +5,7 @@ import { Product } from './modules/products/product.model.js';
 
 const PORT = process.env.PORT ?? 3000;
 
-export const seedDevelopmentData = () => {
+export const seedInitialData = () => {
   if (productsDB.size > 0) return;
 
   const productA = new Product({
@@ -44,8 +44,8 @@ export const seedDevelopmentData = () => {
   );
 };
 
-if (process.env.NODE_ENV === 'development') {
-  seedDevelopmentData();
+if (process.env.SEED_INITIAL_DATA === 'true') {
+  seedInitialData();
 }
 
 app.listen(PORT, () => {
