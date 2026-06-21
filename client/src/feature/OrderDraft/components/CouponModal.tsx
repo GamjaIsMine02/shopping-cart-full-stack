@@ -1,4 +1,3 @@
-import { createPortal } from 'react-dom';
 import styled from 'styled-components';
 import { Notice } from '../../../shared/styles/common';
 import type { ReactNode } from 'react';
@@ -65,7 +64,7 @@ const CouponModalApplyButton = ({
   onClose: () => void;
   onRefresh: () => void;
 }) => {
-  const { preview, isPreviewLoading, applySelectedCoupons } =
+  const { preview, applySelectedCoupons, couponActionError } =
     useCouponsContext();
 
   const handleApply = async () => {
@@ -78,13 +77,15 @@ const CouponModalApplyButton = ({
   };
 
   return (
-    <ApplyButton type="button" onClick={handleApply}>
-      총{' '}
-      {isPreviewLoading
-        ? '...'
-        : (preview?.totalDiscountPrice ?? 0).toLocaleString()}
-      원 할인 쿠폰 사용하기
-    </ApplyButton>
+    <div>
+      {couponActionError && (
+        <ErrorMessage role="alert">{couponActionError.message}</ErrorMessage>
+      )}
+      <ApplyButton type="button" onClick={handleApply}>
+        총 {(preview?.totalDiscountPrice ?? 0).toLocaleString()}원 할인 쿠폰
+        사용하기
+      </ApplyButton>
+    </div>
   );
 };
 
@@ -155,17 +156,6 @@ const Content = styled.div`
   overflow-y: auto;
 `;
 
-const Placeholder = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  min-height: 280px;
-
-  color: #999999;
-  font-size: 14px;
-`;
-
 const ApplyButton = styled.button`
   flex: none;
 
@@ -180,4 +170,13 @@ const ApplyButton = styled.button`
   font-size: 17px;
   font-weight: 700;
   cursor: pointer;
+`;
+
+const ErrorMessage = styled.p`
+  margin: 0 0 8px;
+
+  color: #c62828;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
 `;

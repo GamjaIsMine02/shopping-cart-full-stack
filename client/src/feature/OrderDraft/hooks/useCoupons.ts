@@ -26,12 +26,11 @@ export const useCoupons = (orderId: string, appliedCouponIds: string[]) => {
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
 
   // 쿠폰 목록
-  const { data, isLoading, error, refetch, setQueryData } =
-    useQuery<CouponResponse>(
-      `coupons-${orderId ?? 'idle'}`,
-      getCoupons,
-      orderId,
-    );
+  const { data, isLoading, error } = useQuery<CouponResponse>(
+    `coupons-${orderId ?? 'idle'}`,
+    getCoupons,
+    orderId,
+  );
 
   // 할인 금액 mutation
   const {
@@ -49,11 +48,6 @@ export const useCoupons = (orderId: string, appliedCouponIds: string[]) => {
     error: applyError,
   } = useMutation<Pick<PatchOrderRequest, 'couponIds'>, PatchOrderResponse>(
     ({ couponIds }) => patchOrderCouponIds(orderId, { couponIds }),
-  );
-
-  // 모달 에러
-  const [couponActionError, setCouponActionError] = useState<Error | null>(
-    null,
   );
 
   // 쿠폰 적용
@@ -114,6 +108,6 @@ export const useCoupons = (orderId: string, appliedCouponIds: string[]) => {
     applySelectedCoupons,
     isApplying,
 
-    couponActionError,
+    couponActionError: getPreviewError || applyError,
   };
 };

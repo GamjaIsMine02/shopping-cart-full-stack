@@ -59,7 +59,10 @@ export const OrderDraftPage = () => {
         />
         <ContentArea>{비동기_상태에_따라_컴포넌트_보여주기()}</ContentArea>
         <ButtonArea>
-          <Button disabled={isLoading}>결제하기</Button>
+          {orderActionError && (
+            <ErrorMessage role="alert">{orderActionError.message}</ErrorMessage>
+          )}
+          <Button disabled={cartFetchStatus !== 'success'}>결제하기</Button>
         </ButtonArea>
       </OrderDraftContainer>
     </Wrapper>
@@ -84,4 +87,13 @@ const ButtonArea = styled.div`
   flex-shrink: 0;
 
   background-color: #ffffff;
+`;
+
+const ErrorMessage = styled.p`
+  margin: 0 0 8px;
+
+  color: #c62828;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
 `;
