@@ -4,7 +4,7 @@ export type OrderResponse = {
     productId: string;
     productName: string;
     productPrice: number;
-    imgUrl: string;
+    imageUrl: string;
     quantity: number;
   }[];
   couponIds: string[];
