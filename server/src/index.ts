@@ -22,12 +22,12 @@ export const seedInitialData = () => {
     productPrice: 24000,
     remainingQuantity: 50,
     imageUrl:
-      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLktrDeV4VKcGnSosxHVwz_SVvrj-YHJDxzQ&s',
+      'https://upload.wikimedia.org/wikipedia/commons/d/d3/Cider_%28lemon-lime_drink%29.jpg',
   });
 
   const productC = new Product({
-    productId: 'product-2',
-    productName: '사이다',
+    productId: 'product-3',
+    productName: '환타',
     productPrice: 1500,
     remainingQuantity: 99,
     imageUrl:
@@ -59,7 +59,7 @@ export const seedInitialData = () => {
     new CartItem({
       cartItemId: 'cart-item-3',
       productId: productC.productId,
-      purchaseQuantity: 2,
+      purchaseQuantity: 3,
     }),
   );
 };
