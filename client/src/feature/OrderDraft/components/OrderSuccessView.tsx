@@ -92,9 +92,7 @@ export const OrderSuccessView = ({
         </DeliveryInfo>
       </SectionContent>
 
-      <SectionFooter>
-        <OrderSummary priceContext={priceContext} />
-      </SectionFooter>
+      <OrderSummary priceContext={priceContext} />
       {overlay.modal}
     </Section>
   );
@@ -158,5 +156,3 @@ const CheckboxText = styled.label`
 
   text-align: center;
 `;
-
-const SectionFooter = styled.label``;
