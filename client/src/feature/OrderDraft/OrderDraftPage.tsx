@@ -7,6 +7,7 @@ import { Button } from '../../common/components/Button';
 import styled from 'styled-components';
 import { OrderSkeletonView } from './components/OrderSkeletonView';
 import { OrderErrorView } from './components/OrderErrorView';
+import type { OrderConfirmSummary } from '../OrderConfirm/types/orderConfirm.types';
 
 export const OrderDraftPage = () => {
   const navigate = useNavigate();
@@ -28,12 +29,34 @@ export const OrderDraftPage = () => {
 
   const cartFetchStatus = isLoading ? 'loading' : error ? 'error' : 'success';
 
+  const handlePayment = () => {
+    if (!data) return;
+
+    const orderSummary: OrderConfirmSummary = {
+      productKindCount: data.products.length,
+      totalProductCount: data.products.reduce(
+        (totalCount, product) => totalCount + product.quantity,
+        0,
+      ),
+      totalPrice: data.priceInfo.totalPrice,
+    };
+
+    navigate('/order-confirm', {
+      replace: true,
+      state: orderSummary,
+    });
+  };
+
   const 비동기_상태에_따라_컴포넌트_보여주기 = () => {
-    if (cartFetchStatus === 'loading') {
+    if (isLoading) {
       return <OrderSkeletonView />;
-    } else if (cartFetchStatus === 'error') {
+    }
+
+    if (error) {
       return <OrderErrorView error={error} />;
-    } else if (cartFetchStatus === 'success') {
+    }
+
+    if (data) {
       return (
         <OrderSuccessView
           data={data}
@@ -42,6 +65,8 @@ export const OrderDraftPage = () => {
         />
       );
     }
+
+    return <OrderSkeletonView />;
   };
 
   return (
@@ -62,7 +87,12 @@ export const OrderDraftPage = () => {
           {orderActionError && (
             <ErrorMessage role="alert">{orderActionError.message}</ErrorMessage>
           )}
-          <Button disabled={cartFetchStatus !== 'success'}>결제하기</Button>
+          <Button
+            disabled={cartFetchStatus !== 'success' || !data}
+            onClick={handlePayment}
+          >
+            결제하기
+          </Button>
         </ButtonArea>
       </OrderDraftContainer>
     </Wrapper>
