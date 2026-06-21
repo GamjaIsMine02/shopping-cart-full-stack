@@ -11,7 +11,7 @@ import { useCartContext } from './context/CartContext';
 import { CartProvider } from './context/CartProvider';
 import { Container, Wrapper } from '../../common/styles/global';
 import styled from 'styled-components';
-import { useOrder } from '../OrderDraft/hooks/useOrder';
+import { useCreateOrder } from './hooks/useCreateOrder';
 
 export const CartPage = () => {
   return (
@@ -32,7 +32,7 @@ const CartOrderForm = () => {
   const { cartItems, selectedCartItemIds, cartFetchStatus, cartActionError } =
     useCartContext();
 
-  const { createOrder } = useOrder();
+  const { createOrder } = useCreateOrder();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

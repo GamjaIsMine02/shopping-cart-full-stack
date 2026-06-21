@@ -62,6 +62,8 @@ export const useQuery = <T>(
     if (queryCache.has(queryKey)) {
       return;
     }
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     executeQuery();
   }, [executeQuery]);
 
