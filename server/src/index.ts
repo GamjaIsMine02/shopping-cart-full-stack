@@ -13,25 +13,37 @@ export const seedInitialData = () => {
     productName: '콜라',
     productPrice: 12000,
     remainingQuantity: 25,
-    imageUrl: 'src/assets/coke.png',
+    imageUrl:
+      'https://i.namu.wiki/i/O_C6hvISxb9ndvytfAMu_zJll2D1JXK0oe4oLfPc8GVb4K7XG4f2SlH72dgi99pMw5TpdgtoXu6wGua_BsgPdA.webp',
   });
   const productB = new Product({
     productId: 'product-2',
     productName: '사이다',
-    productPrice: 30000,
+    productPrice: 24000,
     remainingQuantity: 50,
-    imageUrl: 'src/assets/cider.png',
+    imageUrl:
+      'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLktrDeV4VKcGnSosxHVwz_SVvrj-YHJDxzQ&s',
+  });
+
+  const productC = new Product({
+    productId: 'product-2',
+    productName: '사이다',
+    productPrice: 1500,
+    remainingQuantity: 99,
+    imageUrl:
+      'https://www.coca-cola.com/content/dam/onexp/kr/ko/brands/fanta/2025-fanta-packshot-fanta-orange.png',
   });
 
   productsDB.set(productA.productId, productA);
   productsDB.set(productB.productId, productB);
+  productsDB.set(productC.productId, productC);
 
   cartItemsDB.set(
     'cart-item-1',
     new CartItem({
       cartItemId: 'cart-item-1',
       productId: productA.productId,
-      purchaseQuantity: 5,
+      purchaseQuantity: 4,
     }),
   );
   cartItemsDB.set(
@@ -39,7 +51,15 @@ export const seedInitialData = () => {
     new CartItem({
       cartItemId: 'cart-item-2',
       productId: productB.productId,
-      purchaseQuantity: 3,
+      purchaseQuantity: 2,
+    }),
+  );
+  cartItemsDB.set(
+    'cart-item-3',
+    new CartItem({
+      cartItemId: 'cart-item-3',
+      productId: productC.productId,
+      purchaseQuantity: 2,
     }),
   );
 };
