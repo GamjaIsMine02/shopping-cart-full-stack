@@ -19,7 +19,6 @@ export const OrderDraftPage = () => {
     error,
     loadOrder,
     changeOrderIsIsland,
-    orderFetchError,
     orderActionError,
   } = useOrder(orderId);
 
@@ -33,7 +32,7 @@ export const OrderDraftPage = () => {
     if (cartFetchStatus === 'loading') {
       return <OrderSkeletonView />;
     } else if (cartFetchStatus === 'error') {
-      return <OrderErrorView />;
+      return <OrderErrorView error={error} />;
     } else if (cartFetchStatus === 'success') {
       return (
         <OrderSuccessView
@@ -50,7 +49,10 @@ export const OrderDraftPage = () => {
       <OrderDraftContainer>
         <Header
           left={
-            <button type="button" onClick={() => navigate('/cart')}>
+            <button
+              type="button"
+              onClick={() => navigate('/cart', { replace: true })}
+            >
               ←
             </button>
           }

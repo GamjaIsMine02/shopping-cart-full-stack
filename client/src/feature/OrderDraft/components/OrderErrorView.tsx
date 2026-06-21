@@ -2,13 +2,15 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { Description } from '../../../shared/styles/common';
 
-export const OrderErrorView = () => {
+export const OrderErrorView = ({ error }: { error: Error }) => {
   const navigate = useNavigate();
 
   return (
     <ErrorContainer>
       <Message>주문 정보를 확인할 수 없어요.</Message>
-      <Description>상품을 다시 확인해 주세요.</Description>
+      <Description>
+        {error.message || '잠시 후 다시 시도해 주세요.'}
+      </Description>
       <BackButton type="button" onClick={() => navigate('/cart')}>
         장바구니로 돌아가기
       </BackButton>
