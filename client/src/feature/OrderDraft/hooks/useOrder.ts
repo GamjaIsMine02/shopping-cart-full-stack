@@ -18,12 +18,23 @@ export type PriceInfo = {
 
 export const useOrder = (orderId?: string) => {
   const { data, isLoading, error, refetch, setQueryData } =
-    useQuery<OrderResponse>(`order-${orderId ?? 'idle'}`, getOrder, orderId);
+    useQuery<OrderResponse>(
+      `order-${orderId ?? 'idle'}`,
+      getOrder,
+      orderId,
+      Boolean(orderId),
+    );
 
   const { mutate, error: patchOrderIsIslandError } = useMutation<
     Pick<PatchOrderRequest, 'isIsland'>,
     PatchOrderResponse
-  >(({ isIsland }) => patchOrderIsIsland(orderId, { isIsland }));
+  >(({ isIsland }) => {
+    if (!orderId) {
+      throw new Error('주문 ID가 없습니다.');
+    }
+
+    return patchOrderIsIsland(orderId, { isIsland });
+  });
 
   const [orderActionError, setOrderActionError] = useState<Error | null>(null);
 
@@ -51,9 +62,12 @@ export const useOrder = (orderId?: string) => {
           });
         },
 
-        onError: () => {
-          setQueryData(() => previousOrder);
-          setOrderActionError(patchOrderIsIslandError);
+        onError: (nextError) => {
+          if (previousOrder) {
+            setQueryData(() => previousOrder);
+          }
+
+          setOrderActionError(nextError);
         },
       },
     );
@@ -73,6 +87,6 @@ export const useOrder = (orderId?: string) => {
     error,
     loadOrder,
     changeOrderIsIsland,
-    orderActionError,
+    orderActionError: orderActionError ?? patchOrderIsIslandError,
   };
 };

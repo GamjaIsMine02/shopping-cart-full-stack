@@ -12,7 +12,7 @@ import type { OrderConfirmSummary } from '../OrderConfirm/types/orderConfirm.typ
 export const OrderDraftPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { orderId } = location.state as { orderId: string };
+  const orderId = (location.state as { orderId?: string } | null)?.orderId;
 
   const {
     data,
