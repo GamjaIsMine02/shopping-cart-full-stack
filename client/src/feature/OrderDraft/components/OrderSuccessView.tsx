@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import { Checkbox, Description, Title } from '../../../shared/styles/common';
 import type { OrderResponse } from '../../../api/orderDraft/orderApi.types';
-import { ItemLayout } from '../../../shared/components/ItemLayout';
 import { OrderSummary } from './OrderSummary';
 import { useModal } from '../hooks/useModal';
 import { CouponModal } from './CouponModal';
 import { CouponsProvider } from '../context/CouponProvider';
+import { OrderItem } from './OrderItem';
 
 export type PriceContextType = {
   orderPrice: number;
@@ -69,24 +69,7 @@ export const OrderSuccessView = ({
       <SectionContent>
         <OrderItemList>
           {data.products.map((product) => (
-            <ItemLayout
-              key={product.productId}
-              image={
-                <ItemLayout.Image
-                  src={product.imgUrl}
-                  alt={product.productName}
-                />
-              }
-              name={<ItemLayout.Name>{product.productName}</ItemLayout.Name>}
-              price={
-                <ItemLayout.Price>
-                  {product.productPrice.toLocaleString()}원
-                </ItemLayout.Price>
-              }
-              quantitySlot={
-                <ItemLayout.Quantity>{product.quantity}개</ItemLayout.Quantity>
-              }
-            />
+            <OrderItem key={product.productId} product={product} />
           ))}
         </OrderItemList>
 

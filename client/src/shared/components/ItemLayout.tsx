@@ -2,26 +2,36 @@ import styled from 'styled-components';
 import type { ReactNode } from 'react';
 
 type ProductItemProps = {
+  leadingSlot?: ReactNode;
   image: ReactNode;
   name: ReactNode;
   price: ReactNode;
   quantitySlot: ReactNode;
+  trailingSlot?: ReactNode;
 };
 
 export const ItemLayout = ({
+  leadingSlot,
   image,
   name,
   price,
   quantitySlot,
+  trailingSlot,
 }: ProductItemProps) => {
   return (
     <Container>
-      {image}
-      <Content>
-        {name}
-        {price}
-        {quantitySlot}
-      </Content>
+      {leadingSlot}
+
+      <ItemContent>
+        {image}
+        <Content>
+          {name}
+          {price}
+          {quantitySlot}
+        </Content>
+      </ItemContent>
+
+      {trailingSlot}
     </Container>
   );
 };
@@ -29,11 +39,19 @@ export const ItemLayout = ({
 // 상품 한 칸의 레이아웃을 구성
 const Container = styled.div`
   display: flex;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 14px;
   padding: 12px 0;
   min-width: 0;
 
   border-top: 1px solid #eeeeee;
+`;
+
+const ItemContent = styled.div`
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  min-width: 0;
 `;
 
 ItemLayout.Image = styled.img`
@@ -47,7 +65,10 @@ ItemLayout.Image = styled.img`
   background-color: #f2f2f2;
 `;
 
-const Content = styled.div``;
+const Content = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
 
 ItemLayout.Name = styled.div`
   overflow: hidden;
