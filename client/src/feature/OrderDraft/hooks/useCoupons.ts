@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useQuery } from '../../../shared/hooks/useQuery';
 import type {
@@ -84,6 +84,21 @@ export const useCoupons = (orderId: string, appliedCouponIds: string[]) => {
     setSelectedCouponIds(nextCouponIds);
     setPreview(result);
   };
+
+  // useEffect로 할인 금액 초기화
+  useEffect(() => {
+    const loadInitialPreview = async () => {
+      const result = await getDiscountPreviewMutate({
+        couponIds: appliedCouponIds,
+      });
+
+      if (result) {
+        setPreview(result);
+      }
+    };
+
+    loadInitialPreview();
+  }, []);
 
   return {
     selectedCouponIds,
